@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="icon">#000000</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="bg_text_rounded">#FFFFFF</color>
+    <color name="bg_home_gradient_start">#FFF1F2</color>
+    <color name="bg_home_gradient_center">#FFF7ED</color>
+    <color name="bg_home_gradient_end">#FDF2F8</color>
+    <color name="overlay_gradient_start">#00FFFFFF</color>
+    <color name="overlay_gradient_center">#29FFFFFF</color>
+    <color name="overlay_gradient_end">#59FFFFFF</color>
+    <color name="home_title">#111827</color>
+    <color name="author_text">#4B5563</color>
+    <color name="description">#494747</color>
+    <color name="apple_music_text">#6B7280</color>
+    <color name="bg_circle_color_start">#F472B6</color>
+    <color name="bg_circle_color_end">#FB923C</color>
+    <color name="ic_arrow_bottom">#F9A8D4</color>
+    <color name="border_background_text">#3CFCE7F3</color>
+    <color name="nav_item_bg_default">@color/bg_text_rounded</color>
+    <color name="nav_item_icon_text">#000000</color>
+    <color name="nav_item_hover_color">#F472B6</color>
+
 </resources>

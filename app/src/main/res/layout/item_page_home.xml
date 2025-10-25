@@ -1,14 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_home_gradient"
     android:gravity="center">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Une nouvelle musique"
-        android:textSize="36sp" />
+    <RelativeLayout
+        android:id="@+id/relativeLayoutHome"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+        <FrameLayout
+            android:id="@+id/div_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="@dimen/padding_screen"
+            android:layout_marginRight="@dimen/padding_screen"
+            android:layout_marginBottom="5dp">
+
+            <ImageView
+                android:id="@+id/covert_art"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/covert_art"
+                android:scaleType="centerCrop"
+                android:src="@drawable/cover" />
+
+            <!-- Overlay gradient -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:src="@drawable/overlay_gradient" />
+        </FrameLayout>
+
+
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/div_image"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/space_between_bloc"
+            android:text="Un titre"
+            android:textColor="@color/home_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textAuthor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textTitle"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/space_between_bloc"
+            android:text="Auteur"
+            android:textColor="@color/author_text" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textAuthor"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="@dimen/padding_screen"
+            android:layout_marginTop="@dimen/space_between_bloc"
+            android:layout_marginRight="@dimen/padding_screen"
+            android:background="@drawable/bg_text_rounded"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="10dp"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text=" Style - Date - Style - Date - Style - Date Style - Date - Style - Date "
+            android:textColor="@color/description"
+            android:textIsSelectable="true"
+            android:textSize="14sp"
+            tools:ignore="Autofill" />
+
+
+        <LinearLayout
+            android:id="@+id/div_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/description"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="@dimen/padding_screen"
+            android:layout_marginTop="@dimen/double_space_between_bloc"
+            android:layout_marginRight="@dimen/padding_screen"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <!-- Left button -->
+            <FrameLayout
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_circle"
+                android:foreground="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/left"
+                    android:src="@drawable/ic_heart" />
+            </FrameLayout>
+
+            <!-- Middle button (bigger) -->
+            <FrameLayout
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_circle_color"
+                android:foreground="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/middle"
+                    android:src="@drawable/ic_play" />
+            </FrameLayout>
+
+            <!-- Right button -->
+            <FrameLayout
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_circle"
+                android:foreground="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/right"
+                    android:src="@drawable/ic_add_playlist" />
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/appleMusicText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/div_button"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/little_space_between_bloc"
+            android:text="@string/listen_on_apple_music"
+            android:textColor="@color/apple_music_text" />
+
+        <ImageView
+            android:id="@+id/arrow_bottom"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_below="@id/appleMusicText"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/triple_space_between_bloc"
+            android:layout_marginBottom="@dimen/space_between_bloc"
+            android:contentDescription="@string/arrow_for_swipe_indication"
+            android:src="@drawable/ic_arrow_bottom" />
+
+    </RelativeLayout>
 </FrameLayout>

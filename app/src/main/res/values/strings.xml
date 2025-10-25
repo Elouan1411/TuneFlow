@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">TuneFlow</string>
+    <string name="covert_art">Visuel Musique</string>
+    <string name="right">Droite</string>
+    <string name="middle">Milieu</string>
+    <string name="left">Gauche</string>
+    <string name="listen_on_apple_music">Ecouter sur Apple Music</string>
+    <string name="arrow_for_swipe_indication">Fleche d\'indication pour swipe</string>
+    <dimen name="little_space_between_bloc">5dp</dimen>
+    <dimen name="space_between_bloc">13dp</dimen>
+    <dimen name="double_space_between_bloc">26dp</dimen>
+    <dimen name="triple_space_between_bloc">39dp</dimen>
+    <dimen name="padding_screen">40dp</dimen>
 </resources>
