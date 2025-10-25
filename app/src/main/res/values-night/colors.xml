@@ -3,10 +3,10 @@
     <color name="icon">#FFFFFF</color>
     <color name="bg_text_rounded">#E61F1F21</color>
     <color name="bg_home_gradient_start">#000000</color>
-    <color name="bg_home_gradient_center">#5D28282E</color>
+    <color name="bg_home_gradient_center">#5D7E7E7E</color>
     <color name="bg_home_gradient_end">#000000</color>
     <color name="overlay_gradient_start">#00000000</color>
-    <color name="overlay_gradient_center">#88000000</color>
+    <color name="overlay_gradient_center">#9E000000</color>
     <color name="overlay_gradient_end">#CC000000</color>
     <color name="home_title">#EBEBEB</color>
     <color name="author_text">#A1A1AA</color>

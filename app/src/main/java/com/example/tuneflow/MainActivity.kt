@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 class MainActivity : AppCompatActivity() {
@@ -23,7 +24,15 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
+
+
         val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
+
+
+        // Removes automatic padding applied by insets
+        ViewCompat.setOnApplyWindowInsetsListener(bottomNavigation) { _, insets ->
+            insets
+        }
 
         // PreLoad fragment and display home
         bottomNavigation.selectedItemId = R.id.nav_home

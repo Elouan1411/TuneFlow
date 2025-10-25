@@ -21,5 +21,9 @@
     <color name="nav_item_bg_default">@color/bg_text_rounded</color>
     <color name="nav_item_icon_text">#000000</color>
     <color name="nav_item_hover_color">#F472B6</color>
+    <color name="transparent">#00000000</color>
+    <color name="overlay_cover">#C8000000</color>
+    <color name="overlay_cover_ripple">#909090</color>
+    <color name="sound_background">#555555</color>
 
 </resources>

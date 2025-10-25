@@ -13,55 +13,103 @@
         android:gravity="bottom"
         tools:ignore="UselessParent">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
 
         <FrameLayout
-            android:id="@+id/div_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="@dimen/padding_screen"
-            android:layout_marginRight="@dimen/padding_screen"
-            android:layout_marginBottom="5dp">
+            android:id="@+id/divCover"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_centerHorizontal="true">
 
             <ImageView
                 android:id="@+id/covert_art"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:layout_gravity="center"
                 android:adjustViewBounds="true"
+                android:clickable="true"
                 android:contentDescription="@string/covert_art"
-                android:scaleType="centerCrop"
+                android:focusable="true"
+                android:foreground="@drawable/ripple_cover"
+                android:scaleType="fitCenter"
                 android:src="@drawable/cover" />
 
-            <!-- Overlay gradient -->
-            <ImageView
+            <View
+                android:id="@+id/overlay"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="fitXY"
-                android:src="@drawable/overlay_gradient" />
+                android:background="@drawable/overlay_border"
+                android:visibility="gone" />
+
+            <FrameLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/sound_container"
+                android:visibility="gone"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="center"
+
+                android:background="@drawable/sound_background">
+
+<!--                <View-->
+<!--                    android:id="@+id/music_wave"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="40dp"-->
+<!--                    android:visibility="gone"-->
+<!--                    android:layout_gravity="bottom"-->
+<!--                    android:background="#cccccc" />-->
+
+                <ImageView
+                    android:id="@+id/sound_logo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_mute"
+                    android:layout_gravity="center" />
+            </FrameLayout>
+
+
+
+
         </FrameLayout>
 
 
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+
+            android:id="@+id/divTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/div_image"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/space_between_bloc"
-            android:text="Un titre"
-            android:textColor="@color/home_title"
-            android:textStyle="bold" />
+            android:layout_below="@id/divCover"
+            android:layout_marginTop="@dimen/double_space_between_bloc">
+
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Un titre"
+                android:textColor="@color/home_title"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/vinyl"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="@dimen/space_between_bloc"
+                android:src="@drawable/cover"
+                app:layout_constraintBaseline_toBaselineOf="@id/textTitle"
+                app:layout_constraintStart_toEndOf="@id/textTitle"
+                app:layout_constraintTop_toTopOf="@id/textTitle" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <TextView
             android:id="@+id/textAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textTitle"
+            android:layout_below="@id/divTitle"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/space_between_bloc"
             android:text="Auteur"
@@ -80,13 +128,13 @@
             android:ellipsize="marquee"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:marqueeRepeatLimit="marquee_forever"
             android:paddingHorizontal="12dp"
             android:paddingVertical="10dp"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text=" Style - Date - Style - Date - Style - Date Style - Date - Style - Date "
+            android:text="bg"
             android:textColor="@color/description"
             android:textIsSelectable="true"
             android:textSize="14sp"
@@ -133,7 +181,8 @@
                 <ImageView
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:layout_gravity="center"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="14dp"
                     android:contentDescription="@string/middle"
                     android:src="@drawable/ic_play" />
             </FrameLayout>
