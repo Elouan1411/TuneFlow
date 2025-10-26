@@ -1,5 +1,4 @@
-package com.example.tuneflow
-
+package com.example.tuneflow.player
 
 import android.media.MediaPlayer
 import android.util.Log

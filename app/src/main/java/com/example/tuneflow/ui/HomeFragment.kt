@@ -1,4 +1,4 @@
-package com.example.tuneflow
+package com.example.tuneflow.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +8,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.example.tuneflow.MainActivity
+import com.example.tuneflow.player.MusicPlayerManager
+import com.example.tuneflow.R
+import com.example.tuneflow.db.TuneFlowDatabase
+import com.example.tuneflow.ui.adapters.SwipeAdapter
+import com.example.tuneflow.network.ApiClient
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -16,6 +22,8 @@ class HomeFragment : Fragment() {
     private lateinit var adapter: SwipeAdapter
 
     private var pagesRemoved = 0
+    private val db: TuneFlowDatabase
+        get() = (activity as MainActivity).db
 
 
     companion object {
@@ -44,6 +52,9 @@ class HomeFragment : Fragment() {
                 song?.let {
                     MusicPlayerManager.playSong(it.previewUrl)
                 }
+
+                // increment db
+                db.incrementDiscoverSongs()
 
             }
         })

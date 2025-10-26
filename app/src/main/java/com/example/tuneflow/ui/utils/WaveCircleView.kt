@@ -1,4 +1,4 @@
-package com.example.tuneflow
+package com.example.tuneflow.ui.utils
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -6,9 +6,11 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
-import kotlin.random.Random
 import androidx.core.graphics.withClip
+import kotlin.random.Random
 
 // Specific class for animate sound_container (ic_mute)
 class WaveCircleView @JvmOverloads constructor(
@@ -39,7 +41,7 @@ class WaveCircleView @JvmOverloads constructor(
             var target: Float
             do {
                 // choose the next step away from the first to better simulate the music
-                target = Random.nextFloat() * (maxLevel - minLevel) + minLevel
+                target = Random.Default.nextFloat() * (maxLevel - minLevel) + minLevel
             } while (Math.abs(target - level) < minStep)
 
 
@@ -49,9 +51,9 @@ class WaveCircleView @JvmOverloads constructor(
                 this.duration = duration
                 // allows the movement speed to be randomly changed
                 interpolator = if (random.nextBoolean())
-                    android.view.animation.AccelerateDecelerateInterpolator()
+                    AccelerateDecelerateInterpolator()
                 else
-                    android.view.animation.LinearInterpolator()
+                    LinearInterpolator()
                 addUpdateListener {
                     level = it.animatedValue as Float
                     invalidate()

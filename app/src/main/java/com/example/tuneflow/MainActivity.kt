@@ -8,10 +8,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import com.example.tuneflow.db.TuneFlowDatabase
+import com.example.tuneflow.ui.DashboardFragment
+import com.example.tuneflow.ui.DiscoverFragment
+import com.example.tuneflow.ui.HomeFragment
+import com.example.tuneflow.ui.utils.SwipeListener
+import com.example.tuneflow.ui.utils.loadFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 class MainActivity : AppCompatActivity() {
 
     lateinit var gestureDetector: GestureDetector
+    lateinit var db: TuneFlowDatabase
 
     val homeFragment = HomeFragment()
     val dashboardFragment = DashboardFragment()
@@ -23,6 +30,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        db = TuneFlowDatabase(this)
+        db.initializeDb()
+
+
+
 
 
 
@@ -45,9 +58,15 @@ class MainActivity : AppCompatActivity() {
         // Bottom nav actions
         bottomNavigation.setOnItemSelectedListener { page ->
             when(page.itemId){
-                R.id.nav_home -> supportFragmentManager.loadFragment(R.id.fragment_container,HomeFragment())
-                R.id.nav_dashboard -> supportFragmentManager.loadFragment(R.id.fragment_container,DashboardFragment())
-                R.id.nav_discover -> supportFragmentManager.loadFragment(R.id.fragment_container,DiscoverFragment())
+                R.id.nav_home -> supportFragmentManager.loadFragment(R.id.fragment_container,
+                    HomeFragment()
+                )
+                R.id.nav_dashboard -> supportFragmentManager.loadFragment(R.id.fragment_container,
+                    DashboardFragment()
+                )
+                R.id.nav_discover -> supportFragmentManager.loadFragment(R.id.fragment_container,
+                    DiscoverFragment()
+                )
             }
             true
         }
@@ -122,4 +141,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
+
+
 }
+

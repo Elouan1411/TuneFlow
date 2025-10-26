@@ -31,7 +31,7 @@
                 android:focusable="true"
                 android:foreground="@drawable/ripple_cover"
                 android:scaleType="fitCenter"
-                android:src="@drawable/cover" />
+                tools:src="@mipmap/ic_launcher" />
 
             <View
                 android:id="@+id/overlay"
@@ -48,7 +48,7 @@
                 android:layout_gravity="center">
 
                 <!-- animate circle -->
-                <com.example.tuneflow.WaveCircleView
+                <com.example.tuneflow.ui.utils.WaveCircleView
                     android:id="@+id/wave_circle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
@@ -103,14 +103,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/covert_art"
-                    tools:src="@drawable/cover"/>
+                    tools:src="@mipmap/ic_launcher"/>
 
                 <ImageView
                     android:id="@+id/vinyl_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/vinyl_image"
-                    tools:src="@drawable/vinyl"/>
+                    tools:src="@drawable/ic_vinyl"/>
 
             </FrameLayout>
 

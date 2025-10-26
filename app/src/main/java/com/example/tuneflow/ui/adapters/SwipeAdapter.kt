@@ -1,28 +1,23 @@
-package com.example.tuneflow
+package com.example.tuneflow.ui.adapters
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.graphics.drawable.Drawable
-import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.RoundedCorner
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
-import androidx.core.view.isVisible
+import com.example.tuneflow.R
+import com.example.tuneflow.data.Song
+import com.example.tuneflow.player.MusicPlayerManager
 
 class SwipeAdapter(val items: MutableList<Song>) :
     RecyclerView.Adapter<SwipeAdapter.SwipeViewHolder>() {
@@ -98,7 +93,7 @@ class SwipeAdapter(val items: MutableList<Song>) :
             .apply(RequestOptions().transform(CircleCrop()))
             .into(holder.vinyl_cover)
         Glide.with(holder.view.context)
-            .load(R.drawable.vinyl)
+            .load(R.drawable.ic_vinyl)
             .apply(RequestOptions().transform(CircleCrop()))
             .into(holder.vinyl_image)
 
@@ -154,4 +149,3 @@ class SwipeAdapter(val items: MutableList<Song>) :
 
 
 }
-

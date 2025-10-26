@@ -1,4 +1,4 @@
-package com.example.tuneflow
+package com.example.tuneflow.data
 
 data class SongResponse(
     val resultCount: Int,

@@ -1,5 +1,6 @@
-package com.example.tuneflow
+package com.example.tuneflow.network
 
+import com.example.tuneflow.data.SongResponse
 import retrofit2.http.GET
 
 interface MusicAPI {
