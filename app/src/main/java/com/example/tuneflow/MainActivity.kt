@@ -31,6 +31,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
+        // DevDatabaseUtils.deleteDatabase(this) // TODO: just for dev
+
+
         db = TuneFlowDatabase(this)
         db.initializeDb()
 

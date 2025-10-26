@@ -2,6 +2,7 @@ package com.example.tuneflow.ui.adapters
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,12 +16,16 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
+import com.example.tuneflow.MainActivity
 import com.example.tuneflow.R
 import com.example.tuneflow.data.Song
+import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
+import com.example.tuneflow.ui.adapters.SwipeAdapter.SwipeViewHolder
 
-class SwipeAdapter(val items: MutableList<Song>) :
-    RecyclerView.Adapter<SwipeAdapter.SwipeViewHolder>() {
+
+class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase,) :
+    RecyclerView.Adapter<SwipeViewHolder>() {
 
 
     inner class SwipeViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
@@ -39,6 +44,11 @@ class SwipeAdapter(val items: MutableList<Song>) :
 
         val soundContainer = view.findViewById<FrameLayout>(R.id.sound_container)
 
+        val frameLayoutLike = view.findViewById<FrameLayout>(R.id.frameLayoutLike)
+
+        var isLiked: Boolean = false
+
+
         // Animator pour la vinyle
         val rotation: ObjectAnimator = ObjectAnimator.ofFloat(vinyl, "rotation", 0f, 360f).apply {
             duration = 5000
@@ -55,7 +65,6 @@ class SwipeAdapter(val items: MutableList<Song>) :
             repeatCount = ValueAnimator.INFINITE
             start()
         }
-
 
 
     }
@@ -76,14 +85,16 @@ class SwipeAdapter(val items: MutableList<Song>) :
         // Set texts
         holder.textTitle.text = song.trackName
         holder.textAuthor.text = song.artistName
-        "${song.collectionName}    •    ${song.primaryGenreName}    •    $songYear".also { holder.description.text = it }
+        "${song.collectionName}    •    ${song.primaryGenreName}    •    $songYear".also {
+            holder.description.text = it
+        }
         holder.description.isSelected = true // activate scroll
 
         // Load cover art with borderRadius
         val radiusDp = 16f
         val radiusPx = (radiusDp * holder.view.context.resources.displayMetrics.density).toInt()
         Glide.with(holder.view.context)
-            .load(song.artworkUrl100)
+            .load(updateImageUrl(song.artworkUrl100))
             .apply(RequestOptions().transform(RoundedCorners(radiusPx)))
             .into(holder.coverImage)
 
@@ -98,6 +109,14 @@ class SwipeAdapter(val items: MutableList<Song>) :
             .into(holder.vinyl_image)
 
 
+        // detect click on kie button
+        holder.frameLayoutLike.setOnClickListener {
+            holder.isLiked = !holder.isLiked
+            if (holder.isLiked) {
+                // TODO:remove color
+            }
+            db.addLikedSong(song.trackId, holder.isLiked)
+        }
 
         // detect click on cover for stop music and do animation
         holder.coverImage.setOnClickListener {
@@ -141,10 +160,13 @@ class SwipeAdapter(val items: MutableList<Song>) :
         }
     }
 
+    fun updateImageUrl(url: String): String {
+        return url.replace("100x100", "600x600")
+    }
 
-
-
-
+    fun containsSong(song: Song): Boolean {
+        return items.any { it.trackId == song.trackId }
+    }
 
 
 

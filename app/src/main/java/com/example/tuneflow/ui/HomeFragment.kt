@@ -3,6 +3,7 @@ package com.example.tuneflow.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.SearchEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -11,10 +12,13 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.tuneflow.MainActivity
 import com.example.tuneflow.player.MusicPlayerManager
 import com.example.tuneflow.R
+import com.example.tuneflow.data.Song
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.ui.adapters.SwipeAdapter
 import com.example.tuneflow.network.ApiClient
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class HomeFragment : Fragment() {
 
@@ -22,6 +26,12 @@ class HomeFragment : Fragment() {
     private lateinit var adapter: SwipeAdapter
 
     private var pagesRemoved = 0
+    private val globalStyles = listOf(
+        "pop", "rock", "rap", "hip hop", "electro", "indie", "jazz",
+        "classical", "metal", "rnb", "reggae", "techno", "house", "funk",
+        "country", "soul", "punk", "ambient", "blues", "trap", "afrobeat",
+        "kpop", "dance", "disco", "latin"
+    )
     private val db: TuneFlowDatabase
         get() = (activity as MainActivity).db
 
@@ -38,10 +48,11 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         val viewPager = view.findViewById<ViewPager2>(R.id.viewPager)
 
-        val adapter = SwipeAdapter(mutableListOf())
+        val adapter = SwipeAdapter(mutableListOf(), db)
         viewPager.adapter = adapter
 
         fetchSongs(adapter, viewPager)
+        //TODO add loader animate
 
         // listener on swipe
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -51,29 +62,86 @@ class HomeFragment : Fragment() {
                 val song = adapter.getSongAt(position)
                 song?.let {
                     MusicPlayerManager.playSong(it.previewUrl)
+                    db.addListenedSong(song)
                 }
-
                 // increment db
                 db.incrementDiscoverSongs()
 
+
+                // Preload new songs when you get to 5 songs from the end
+                val threshold = 5
+                if (adapter.itemCount - position <= threshold) {
+                    fetchSongs(adapter, viewPager)
+                }
             }
         })
-
-
         return view
     }
 
     private fun fetchSongs(adapter: SwipeAdapter, viewPager: ViewPager2) {
+        val NB_FOR_EACH_SEARCH = 2
+        val YEAR_GROUP_SIZE = 5
+        val THRESHOLD_DISCOVER = 10
         // Fetch songs safely
         lifecycleScope.launch {
             try {
-                val songs = ApiClient.api.getSongs().results
-                songs.forEach { song ->
+                var discover:Boolean = db.getLikedCount() < THRESHOLD_DISCOVER
+                val search: List<String> = if (discover) {
+                    buildSearchTermsDiscover()
+                } else {
+                    buildSearchTerms()
+                }
+
+
+
+
+                var songsSelected = mutableListOf<Song>()
+
+                // We do not scan the last element (the date)
+                // It will be used for a second filter for the style chosen at random
+                for (j in 0 until search.size - 1) {
+                    val songs = ApiClient.api.getSongs(cleanUrlForApi(search[j])).results
+
+
+                    var find = 0
+                    var i = 0
+                    // we select two sounds that the user has never listened to
+                    while (find != NB_FOR_EACH_SEARCH && i < songs.size) {
+                        if (!adapter.containsSong(songs[i]) && !db.soundAlreadyListened(songs[i].trackId)) {
+                            // for le random style
+                            if (j == search.size - 2 && !discover){
+                                // we check that the year corresponds
+                                val year = search.last().toInt() // the chosen year groupe
+                                val yearSong = songs[i].releaseDate.substringBefore("-").toInt()
+                                if (yearSong in (year - YEAR_GROUP_SIZE)..year) {
+                                    songsSelected.add(songs[i])
+                                    find++
+                                }
+                            }else{
+                                songsSelected.add(songs[i])
+                                find++
+                            }
+
+                        }
+                        i++
+                    }
+                    if (find != NB_FOR_EACH_SEARCH){
+                        // Take enough random songs to complete the quota of 2
+                        val needed = NB_FOR_EACH_SEARCH - find
+                        val randomSongs = songs.shuffled().take(needed)
+                        songsSelected.addAll(randomSongs)
+                    }
+                }
+
+                val res = songsSelected.shuffled()
+
+                // we insert the selected sounds
+                res.forEach { song ->
                     adapter.addPage(song)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e("HomeFragment", "API error: ${e.message}")
+                Log.e("myDebug", "API error: ${e.message}")
             }
         }
     }
@@ -85,12 +153,76 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (MusicPlayerManager.getIsRun()){
+        if (MusicPlayerManager.getIsRun()) {
             MusicPlayerManager.resumeSong()
         }
     }
 
+    // To fill the database at the beginning
+    fun buildSearchTermsDiscover(): List<String> {
+        // take 5 different style
+        // todo:ask style and author at first
+        return globalStyles.shuffled().take(5)
+    }
 
+    // suggestion algorithm
+    fun buildSearchTerms(): List<String> {
+        val styles = db.getTopStyles(5)
+        val authors = db.getTopAuthors(5)
+
+
+        val baseWeight = 0.2
+
+        // List of main candidates (excluding random style)
+        val candidates = mutableListOf<Pair<String, Double>>()
+
+        // Add styles and authors
+        for (s in styles) candidates.add(s to baseWeight)
+        for (a in authors) candidates.add(a to baseWeight)
+
+        // Adding 3 styles and 3 authors that the user has already liked
+        val fiveStylesLiked = db.getTopStyles(-1).shuffled().take(3)
+        for (s in fiveStylesLiked) candidates.add(s to baseWeight)
+        val fiveAuthorsLiked = db.getTopAuthors(-1).shuffled().take(3)
+        for (s in fiveAuthorsLiked) candidates.add(s to baseWeight)
+
+
+        // Slight random variation for diversity
+        val mixed = candidates.map { (term, w) ->
+            val variation = 1 + (Math.random() - 0.5) * 0.2
+            term to w * variation
+        }
+
+        // Select 3 distinct element
+        var selected = mixed
+            .sortedByDescending { it.second }
+            .map { it.first.replace(" ", "+") }
+            .distinct()
+            .take(4)
+            .toMutableList()
+
+        selected.shuffle()
+
+        // Add one randomStyle
+        val randomStyle = globalStyles.random()
+        selected.add(randomStyle)
+
+
+        // take the best year
+        val selectedYear = db.getTopYearGroups(1).random().toString()
+
+
+        selected.add(selectedYear)
+        return selected
+    }
+
+
+    fun cleanUrlForApi(term: String): String {
+        // replace space with +
+        val withPluses = term.replace(" ", "+")
+        // Removes all unauthorized characters
+        return withPluses.replace(Regex("[^a-zA-Z0-9.+\\-_*]"), "")
+    }
 
 
 }

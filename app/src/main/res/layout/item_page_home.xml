@@ -123,6 +123,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/divTitle"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/padding_screen"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/space_between_bloc"
             tools:text="Auteur"
@@ -169,6 +171,7 @@
 
             <!-- Left button -->
             <FrameLayout
+                android:id="@+id/frameLayoutLike"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:layout_margin="8dp"
