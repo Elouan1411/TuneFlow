@@ -37,9 +37,30 @@ class SwipeAdapter(val items: MutableList<Song>) :
         val textTitle: TextView = view.findViewById(R.id.textTitle)
         val textAuthor: TextView = view.findViewById(R.id.textAuthor)
 
-        val vinyl: ImageView = view.findViewById(R.id.vinyl)
+        val vinyl: FrameLayout = view.findViewById(R.id.vinyl)
+        val vinyl_image: ImageView = view.findViewById(R.id.vinyl_image)
+        val vinyl_cover: ImageView = view.findViewById(R.id.vinyl_cover)
+
 
         val soundContainer = view.findViewById<FrameLayout>(R.id.sound_container)
+
+        // Animator pour la vinyle
+        val rotation: ObjectAnimator = ObjectAnimator.ofFloat(vinyl, "rotation", 0f, 360f).apply {
+            duration = 5000
+            repeatCount = ValueAnimator.INFINITE
+            interpolator = LinearInterpolator()
+            start()
+        }
+
+
+        // Animate arrow
+        val animator = ObjectAnimator.ofFloat(arrow, "translationY", 0f, 20f).apply {
+            duration = 500
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+            start()
+        }
+
 
 
     }
@@ -47,16 +68,20 @@ class SwipeAdapter(val items: MutableList<Song>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SwipeViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_page_home, parent, false)
+
+
         return SwipeViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: SwipeViewHolder, position: Int) {
         val song = items[position]
+        // keep only year
+        val songYear = song.releaseDate.substringBefore("-")
 
         // Set texts
         holder.textTitle.text = song.trackName
         holder.textAuthor.text = song.artistName
-        holder.description.text = "${song.artistName} - ${song.collectionName}"
+        "${song.collectionName}    •    ${song.primaryGenreName}    •    $songYear".also { holder.description.text = it }
         holder.description.isSelected = true // activate scroll
 
         // Load cover art with borderRadius
@@ -67,28 +92,15 @@ class SwipeAdapter(val items: MutableList<Song>) :
             .apply(RequestOptions().transform(RoundedCorners(radiusPx)))
             .into(holder.coverImage)
 
-        // Load vinyl
+        // Load vinyl //todo: change with wave ?
         Glide.with(holder.view.context)
             .load(song.artworkUrl60)
             .apply(RequestOptions().transform(CircleCrop()))
-            .into(holder.vinyl)
-
-        // Animate arrow
-        val animator = ObjectAnimator.ofFloat(holder.arrow, "translationY", 0f, 20f)
-        animator.duration = 500
-        animator.repeatMode = ValueAnimator.REVERSE
-        animator.repeatCount = ValueAnimator.INFINITE
-        animator.start()
-
-        // Animate vinyl
-        val rotation = ObjectAnimator.ofFloat(holder.vinyl, "rotation", 0f, 360f)
-        rotation.duration = 5000
-        rotation.repeatCount = ValueAnimator.INFINITE
-        rotation.interpolator = LinearInterpolator()
-        rotation.start()
-
-        // animate sound mute
-        // TODO?
+            .into(holder.vinyl_cover)
+        Glide.with(holder.view.context)
+            .load(R.drawable.vinyl)
+            .apply(RequestOptions().transform(CircleCrop()))
+            .into(holder.vinyl_image)
 
 
 
@@ -99,14 +111,14 @@ class SwipeAdapter(val items: MutableList<Song>) :
                 holder.overlayCover.visibility = View.GONE
                 holder.soundContainer.visibility = View.GONE
                 MusicPlayerManager.resumeSong()
-                rotation.resume()
             } else {
                 // tap pause
                 holder.overlayCover.visibility = View.VISIBLE
                 holder.soundContainer.visibility = View.VISIBLE
                 MusicPlayerManager.pauseSong()
-                rotation.pause()
             }
+
+            if (holder.rotation.isPaused) holder.rotation.resume() else holder.rotation.pause()
 
 
         }

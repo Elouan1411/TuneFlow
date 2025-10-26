@@ -40,31 +40,27 @@
                 android:background="@drawable/overlay_border"
                 android:visibility="gone" />
 
-            <FrameLayout
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/sound_container"
+            <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:visibility="gone"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_gravity="center"
+                android:id="@+id/sound_container"
+                android:layout_gravity="center">
 
-                android:background="@drawable/sound_background">
-
-<!--                <View-->
-<!--                    android:id="@+id/music_wave"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="40dp"-->
-<!--                    android:visibility="gone"-->
-<!--                    android:layout_gravity="bottom"-->
-<!--                    android:background="#cccccc" />-->
+                <!-- animate circle -->
+                <com.example.tuneflow.WaveCircleView
+                    android:id="@+id/wave_circle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
                 <ImageView
-                    android:id="@+id/sound_logo"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_mute"
-                    android:layout_gravity="center" />
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_mute" />
             </FrameLayout>
+
+
 
 
 
@@ -82,9 +78,11 @@
 
             <TextView
                 android:id="@+id/textTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="190dp"
                 android:layout_height="wrap_content"
-                android:text="Un titre"
+                android:gravity="center"
+                android:paddingHorizontal="20dp"
+                tools:text="Un titre"
                 android:textColor="@color/home_title"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -92,15 +90,30 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/vinyl"
+            <FrameLayout
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginLeft="@dimen/space_between_bloc"
-                android:src="@drawable/cover"
+                android:id="@+id/vinyl"
                 app:layout_constraintBaseline_toBaselineOf="@id/textTitle"
                 app:layout_constraintStart_toEndOf="@id/textTitle"
-                app:layout_constraintTop_toTopOf="@id/textTitle" />
+                app:layout_constraintTop_toTopOf="@id/textTitle">
+
+                <ImageView
+                    android:id="@+id/vinyl_cover"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/covert_art"
+                    tools:src="@drawable/cover"/>
+
+                <ImageView
+                    android:id="@+id/vinyl_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/vinyl_image"
+                    tools:src="@drawable/vinyl"/>
+
+            </FrameLayout>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -112,7 +125,7 @@
             android:layout_below="@id/divTitle"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/space_between_bloc"
-            android:text="Auteur"
+            tools:text="Auteur"
             android:textColor="@color/author_text" />
 
         <TextView
@@ -134,7 +147,7 @@
             android:paddingVertical="10dp"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="bg"
+            tools:text="album - style - date"
             android:textColor="@color/description"
             android:textIsSelectable="true"
             android:textSize="14sp"
