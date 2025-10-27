@@ -8,8 +8,11 @@ object MusicPlayerManager {
     private var mediaPlayer: MediaPlayer? = null
     private var isRun: Boolean = true
 
-    fun playSong(url: String) {
+    private var currentSong: Long = 0
+
+    fun playSong(url: String, id:Long) {
         stopSong()
+        currentSong = id
 
         mediaPlayer = MediaPlayer().apply {
             try {
@@ -62,6 +65,10 @@ object MusicPlayerManager {
 
     fun setIsRun(musicRun: Boolean){
         isRun = musicRun
+    }
+
+    fun getCurrentSong():Long{
+        return currentSong
     }
 
 

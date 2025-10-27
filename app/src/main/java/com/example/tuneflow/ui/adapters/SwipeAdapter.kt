@@ -2,6 +2,8 @@ package com.example.tuneflow.ui.adapters
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.Context
+import android.content.res.ColorStateList
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +12,9 @@ import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -22,6 +26,7 @@ import com.example.tuneflow.data.Song
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
 import com.example.tuneflow.ui.adapters.SwipeAdapter.SwipeViewHolder
+
 
 
 class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase) :
@@ -45,8 +50,13 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         val soundContainer = view.findViewById<FrameLayout>(R.id.sound_container)
 
         val frameLayoutLike = view.findViewById<FrameLayout>(R.id.frameLayoutLike)
+        val frameLayoutPlaylist = view.findViewById<FrameLayout>(R.id.frameLayoutPlaylist)
+        val buttonLike: ImageView = view.findViewById<ImageView>(R.id.button_like)
 
         var isLiked: Boolean = false
+        var isAddedToPlaylist = false
+
+        val buttonAddPlaylist: ImageView = view.findViewById<ImageView>(R.id.button_add_playlist)
 
 
         // Animator pour la vinyle
@@ -118,35 +128,121 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
             .apply(RequestOptions().transform(CircleCrop()))
             .into(holder.vinyl_image)
 
+        initAdapter(holder)
 
-        // detect click on kie button
+        // detect click on the button like
         holder.frameLayoutLike.setOnClickListener {
             holder.isLiked = !holder.isLiked
             if (holder.isLiked) {
-                // TODO:remove color
+                like(holder)
+            }else{
+                unLike(holder)
             }
             db.addLikedSong(song.trackId, holder.isLiked)
+        }
+
+        // detect click on the button playlist
+        holder.frameLayoutPlaylist.setOnClickListener {
+            holder.isAddedToPlaylist = !holder.isAddedToPlaylist
+            if (holder.isAddedToPlaylist){
+                addToPlaylist(holder)
+                db.addSongToPlaylist(song,"playlist_temp2")
+            }else{
+                removeFromPlaylist(holder)
+                db.removeSongFromPlaylist(song, "playlist_temp2")
+            }
+
         }
 
         // detect click on cover for stop music and do animation
         holder.coverImage.setOnClickListener {
             // tap play
             if (holder.overlayCover.isVisible) {
-                holder.overlayCover.visibility = View.GONE
-                holder.soundContainer.visibility = View.GONE
-                MusicPlayerManager.resumeSong()
+                playMusic(holder)
             } else {
-                // tap pause
-                holder.overlayCover.visibility = View.VISIBLE
-                holder.soundContainer.visibility = View.VISIBLE
-                MusicPlayerManager.pauseSong()
+                pauseMusic(holder)
             }
-
-            if (holder.rotation.isPaused) holder.rotation.resume() else holder.rotation.pause()
-
-
         }
     }
+
+
+    /**
+     * Initialize the adapter for a view holder.
+     * @param holder the view holder to initialize
+     */
+    fun initAdapter(holder: SwipeViewHolder){
+        playMusic(holder)
+        unLike(holder)
+    }
+
+    /**
+     * Change the color of a button (ImageView).
+     * @param button the button to change color
+     * @param color the color resource id
+     */
+    fun changeColorButton(button: ImageView, color: Int){
+        ImageViewCompat.setImageTintList(
+            button,
+            ColorStateList.valueOf(ContextCompat.getColor(button.context, color))
+        )
+    }
+
+    /**
+     * Set the like button to "unliked" state (white color).
+     * @param holder the view holder with the button
+     */
+    fun unLike(holder: SwipeViewHolder){
+        changeColorButton(holder.buttonLike, R.color.white)
+    }
+
+    /**
+     * Set the like button to "liked" state (green color).
+     * @param holder the view holder with the button
+     */
+    fun like(holder: SwipeViewHolder){
+        changeColorButton(holder.buttonLike, R.color.green)
+    }
+    /**
+     * Set the like button to "unliked" state (white color).
+     * @param holder the view holder with the button
+     */
+    fun removeFromPlaylist(holder: SwipeViewHolder){
+        changeColorButton(holder.buttonAddPlaylist, R.color.white)
+    }
+
+    /**
+     * Set the like button to "liked" state (green color).
+     * @param holder the view holder with the button
+     */
+    fun addToPlaylist(holder: SwipeViewHolder){
+        changeColorButton(holder.buttonAddPlaylist, R.color.green)
+    }
+
+
+    /**
+     * Play the music for this view holder.
+     * It also hides the overlay and the sound container, and starts the rotation.
+     * @param holder the view holder with music controls
+     */
+    fun playMusic(holder: SwipeViewHolder){
+        MusicPlayerManager.resumeSong()
+        holder.overlayCover.visibility = View.GONE
+        holder.soundContainer.visibility = View.GONE
+        holder.rotation.resume()
+    }
+
+    /**
+     * Pause the music for this view holder.
+     * It also shows the overlay and the sound container, and stops the rotation.
+     * @param holder the view holder with music controls
+     */
+    fun pauseMusic(holder: SwipeViewHolder){
+        MusicPlayerManager.pauseSong()
+        holder.overlayCover.visibility = View.VISIBLE
+        holder.soundContainer.visibility = View.VISIBLE
+        holder.rotation.pause()
+    }
+
 
     override fun getItemCount(): Int = items.size
 

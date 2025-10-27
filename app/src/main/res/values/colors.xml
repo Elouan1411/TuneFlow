@@ -25,5 +25,6 @@
     <color name="overlay_cover">#C8000000</color>
     <color name="overlay_cover_ripple">#909090</color>
     <color name="sound_background">#555555</color>
+    <color name="green">#3DA40B</color>
 
 </resources>

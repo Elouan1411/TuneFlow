@@ -61,7 +61,7 @@ class HomeFragment : Fragment() {
 
                 val song = adapter.getSongAt(position)
                 song?.let {
-                    MusicPlayerManager.playSong(it.previewUrl)
+                    MusicPlayerManager.playSong(it.previewUrl, it.trackId)
                     db.addListenedSong(song)
                 }
                 // increment db

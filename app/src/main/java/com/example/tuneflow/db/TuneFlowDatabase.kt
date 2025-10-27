@@ -187,6 +187,152 @@ class TuneFlowDatabase(
         )
     }
 
+    /**
+     * Add a song to a playlist.
+     * If the playlist doesn't exist, it is created.
+     * The song is added to the songs table if doesn't already exist.
+     * @param song the song to add
+     * @param playlistName the name of the playlist
+     */
+    fun addSongToPlaylist(song: Song, playlistName: String) {
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            // get id or create playlist
+            var playlistId: Long
+            val cursorPlaylist = db.rawQuery(
+                "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
+                arrayOf(playlistName)
+            )
+            playlistId = if (cursorPlaylist.moveToFirst()) {
+                cursorPlaylist.getLong(cursorPlaylist.getColumnIndexOrThrow(PLAYLIST_ID))
+            } else {
+                val values = ContentValues().apply {
+                    put(PLAYLIST_NAME, playlistName)
+                }
+                db.insert(TABLE_PLAYLISTS, null, values)
+            }
+            cursorPlaylist.close()
+
+            // insert song in table (songs) if doesn't exist
+            val cursorSong = db.rawQuery(
+                "SELECT 1 FROM $TABLE_SONGS WHERE $SONG_ID = ? LIMIT 1",
+                arrayOf(song.trackId.toString())
+            )
+            val songExists = cursorSong.moveToFirst()
+            cursorSong.close()
+
+            if (!songExists) {
+                val valuesSong = ContentValues().apply {
+                    put(SONG_ID, song.trackId)
+                    put(SONG_TITLE, song.trackName)
+                    put(SONG_AUTHOR, song.artistName)
+                    put(SONG_ALBUM, song.collectionName)
+                    put(SONG_PREVIEW_URL, song.previewUrl)
+                    put(SONG_ALBUM_COVER_URL, song.artworkUrl100)
+                    put(SONG_RELEASE_YEAR, song.releaseDate.substringBefore("-"))
+                    put(SONG_TRACK_TIME, song.trackTimeMillis)
+                    put(SONG_STYLE, song.primaryGenreName)
+                    put(SONG_APPLE_MUSIC_URL, song.trackViewUrl)
+                }
+                db.insert(TABLE_SONGS, null, valuesSong)
+            }
+
+            // manage in table playlist_songs
+            val cursorPS = db.rawQuery(
+                "SELECT 1 FROM $TABLE_PLAYLIST_SONGS WHERE $PS_PLAYLIST_ID = ? AND $PS_SONG_ID = ? LIMIT 1",
+                arrayOf(playlistId.toString(), song.trackId.toString())
+            )
+            val alreadyInPlaylist = cursorPS.moveToFirst()
+            cursorPS.close()
+
+            if (!alreadyInPlaylist) {
+                val valuesPS = ContentValues().apply {
+                    put(PS_PLAYLIST_ID, playlistId)
+                    put(PS_SONG_ID, song.trackId)
+                }
+                db.insert(TABLE_PLAYLIST_SONGS, null, valuesPS)
+            }
+
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+    /**
+     * Remove a song from a playlist.
+     * Also removes the song from songs table if it is not in another playlist
+     * Delete the playlist if it is empty
+     * @param song the song to remove
+     * @param playlistName the name of the playlist
+     */
+    fun removeSongFromPlaylist(song: Song, playlistName: String) {
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            // gte playlist id
+            val cursorPlaylist = db.rawQuery(
+                "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
+                arrayOf(playlistName)
+            )
+            if (!cursorPlaylist.moveToFirst()) {
+                cursorPlaylist.close()
+                db.endTransaction()
+                return // playlist doesn't exist
+            }
+            val playlistId = cursorPlaylist.getLong(cursorPlaylist.getColumnIndexOrThrow(PLAYLIST_ID))
+            cursorPlaylist.close()
+
+            // remove songs in playlist_songs
+            db.delete(
+                TABLE_PLAYLIST_SONGS,
+                "$PS_PLAYLIST_ID = ? AND $PS_SONG_ID = ?",
+                arrayOf(playlistId.toString(), song.trackId.toString())
+            )
+
+            // Remove song from songs if not in any playlist
+            val cursorSongInPlaylists = db.rawQuery(
+                "SELECT 1 FROM $TABLE_PLAYLIST_SONGS WHERE $PS_SONG_ID = ? LIMIT 1",
+                arrayOf(song.trackId.toString())
+            )
+            val songInOtherPlaylists = cursorSongInPlaylists.moveToFirst()
+            cursorSongInPlaylists.close()
+
+            if (!songInOtherPlaylists) {
+                db.delete(
+                    TABLE_SONGS,
+                    "$SONG_ID = ?",
+                    arrayOf(song.trackId.toString())
+                )
+            }
+
+            // remove playlist if empty
+            val cursorPlaylistEmpty = db.rawQuery(
+                "SELECT 1 FROM $TABLE_PLAYLIST_SONGS WHERE $PS_PLAYLIST_ID = ? LIMIT 1",
+                arrayOf(playlistId.toString())
+            )
+            val playlistHasSongs = cursorPlaylistEmpty.moveToFirst()
+            cursorPlaylistEmpty.close()
+
+            if (!playlistHasSongs) {
+                db.delete(
+                    TABLE_PLAYLISTS,
+                    "$PLAYLIST_ID = ?",
+                    arrayOf(playlistId.toString())
+                )
+            }
+
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+
+
+
+
     // If limit == -1  -> no limit
     fun getTopValues(column: String, limit: Int = 5): List<String> {
         val db = readableDatabase

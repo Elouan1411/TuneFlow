@@ -176,12 +176,14 @@
                 android:layout_height="60dp"
                 android:layout_margin="8dp"
                 android:background="@drawable/bg_circle"
-                android:foreground="?attr/selectableItemBackground">
+                android:foreground="@drawable/ripple_circle">
 
                 <ImageView
+                    android:id="@+id/button_like"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
                     android:contentDescription="@string/left"
                     android:src="@drawable/ic_heart" />
             </FrameLayout>
@@ -192,13 +194,13 @@
                 android:layout_height="70dp"
                 android:layout_margin="8dp"
                 android:background="@drawable/bg_circle_color"
-                android:foreground="?attr/selectableItemBackground">
+                android:foreground="@drawable/ripple_circle">
 
                 <ImageView
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="14dp"
+                    android:layout_marginLeft="15dp"
                     android:contentDescription="@string/middle"
                     android:src="@drawable/ic_play" />
             </FrameLayout>
@@ -207,14 +209,17 @@
             <FrameLayout
                 android:layout_width="60dp"
                 android:layout_height="60dp"
+                android:id="@+id/frameLayoutPlaylist"
                 android:layout_margin="8dp"
                 android:background="@drawable/bg_circle"
-                android:foreground="?attr/selectableItemBackground">
+                android:foreground="@drawable/ripple_circle">
 
                 <ImageView
+                    android:id="@+id/button_add_playlist"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
                     android:contentDescription="@string/right"
                     android:src="@drawable/ic_add_playlist" />
             </FrameLayout>
