@@ -1,4 +1,4 @@
-package com.example.tuneflow
+package com.example.tuneflow.ui.utils
 
 interface SwipeListener {
     fun onSwipeRight()

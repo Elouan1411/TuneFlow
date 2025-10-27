@@ -1,4 +1,4 @@
-package com.example.tuneflow
+package com.example.tuneflow.ui.utils
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

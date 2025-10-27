@@ -1,5 +1,6 @@
-package com.example.tuneflow
+package com.example.tuneflow.network
 
+import com.example.tuneflow.network.MusicAPI
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
