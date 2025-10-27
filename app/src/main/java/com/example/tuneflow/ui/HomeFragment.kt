@@ -107,16 +107,22 @@ class HomeFragment : Fragment() {
                     var i = 0
                     // we select two sounds that the user has never listened to
                     while (find != NB_FOR_EACH_SEARCH && i < songs.size) {
+                        if (!isSongValid(songs[i])){
+                            i++
+                            continue
+                        }
                         if (!adapter.containsSong(songs[i]) && !db.soundAlreadyListened(songs[i].trackId)) {
                             // for le random style
                             if (j == search.size - 2 && !discover){
                                 // we check that the year corresponds
                                 val year = search.last().toInt() // the chosen year groupe
-                                val yearSong = songs[i].releaseDate.substringBefore("-").toInt()
-                                if (yearSong in (year - YEAR_GROUP_SIZE)..year) {
+                                val releaseDate = songs[i].releaseDate
+                                val yearSong = releaseDate?.substringBefore("-")?.toIntOrNull() // safe conversion
+                                if (yearSong != null && yearSong in (year - YEAR_GROUP_SIZE)..year) {
                                     songsSelected.add(songs[i])
                                     find++
                                 }
+
                             }else{
                                 songsSelected.add(songs[i])
                                 find++
@@ -172,13 +178,19 @@ class HomeFragment : Fragment() {
 
 
         val baseWeight = 0.2
+        val weightPreferences = listOf(0.4, 0.3, 0.25, 0.25, 0.25)
 
         // List of main candidates (excluding random style)
         val candidates = mutableListOf<Pair<String, Double>>()
 
         // Add styles and authors
-        for (s in styles) candidates.add(s to baseWeight)
-        for (a in authors) candidates.add(a to baseWeight)
+        for (s in styles.indices){
+            candidates.add(styles[s] to weightPreferences[s])
+        }
+
+        for (a in authors.indices){
+            candidates.add(authors[a] to weightPreferences[a])
+        }
 
         // Adding 3 styles and 3 authors that the user has already liked
         val fiveStylesLiked = db.getTopStyles(-1).shuffled().take(3)
@@ -223,6 +235,28 @@ class HomeFragment : Fragment() {
         // Removes all unauthorized characters
         return withPluses.replace(Regex("[^a-zA-Z0-9.+\\-_*]"), "")
     }
+
+    /**
+     * Checks if a Song has all required information.
+     * @return true if no essential fields are empty, false otherwise
+     */
+    fun isSongValid(song: Song): Boolean {
+        return listOf(
+            song.artistName,
+            song.collectionName,
+            song.trackName,
+            song.artistViewUrl,
+            song.collectionViewUrl,
+            song.trackViewUrl,
+            song.previewUrl,
+            song.artworkUrl60,
+            song.artworkUrl100,
+            song.releaseDate,
+            song.country,
+            song.primaryGenreName
+        ).all { !it.isNullOrBlank() } // true if is valid
+    }
+
 
 
 }

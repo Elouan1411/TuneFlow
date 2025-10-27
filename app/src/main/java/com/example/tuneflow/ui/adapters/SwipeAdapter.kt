@@ -24,7 +24,7 @@ import com.example.tuneflow.player.MusicPlayerManager
 import com.example.tuneflow.ui.adapters.SwipeAdapter.SwipeViewHolder
 
 
-class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase,) :
+class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase) :
     RecyclerView.Adapter<SwipeViewHolder>() {
 
 
@@ -79,15 +79,25 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
 
     override fun onBindViewHolder(holder: SwipeViewHolder, position: Int) {
         val song = items[position]
-        // keep only year
-        val songYear = song.releaseDate.substringBefore("-")
+
 
         // Set texts
         holder.textTitle.text = song.trackName
         holder.textAuthor.text = song.artistName
-        "${song.collectionName}    •    ${song.primaryGenreName}    •    $songYear".also {
-            holder.description.text = it
+
+        val songYear = song.releaseDate?.substringBefore("-")
+
+        // Build the description dynamically
+        val parts = mutableListOf<String>()
+        parts.add(song.collectionName)
+        parts.add(song.primaryGenreName)
+        if (!songYear.isNullOrEmpty()) {
+            parts.add(songYear) // only add if songYear exists
         }
+
+        holder.description.text = parts.joinToString("    •    ")
+
+
         holder.description.isSelected = true // activate scroll
 
         // Load cover art with borderRadius
@@ -167,7 +177,6 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
     fun containsSong(song: Song): Boolean {
         return items.any { it.trackId == song.trackId }
     }
-
 
 
 }
