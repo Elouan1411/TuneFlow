@@ -11,7 +11,7 @@
     <color name="overlay_gradient_center">#29FFFFFF</color>
     <color name="overlay_gradient_end">#59FFFFFF</color>
     <color name="home_title">#111827</color>
-    <color name="author_text">#4B5563</color>
+    <color name="subtitle">#4B5563</color>
     <color name="description">#494747</color>
     <color name="apple_music_text">#6B7280</color>
     <color name="bg_circle_color_start">#F472B6</color>

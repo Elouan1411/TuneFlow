@@ -41,11 +41,11 @@
                 android:visibility="gone" />
 
             <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/sound_container"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:visibility="gone"
-                android:id="@+id/sound_container"
-                android:layout_gravity="center">
+                android:layout_gravity="center"
+                android:visibility="gone">
 
                 <!-- animate circle -->
                 <com.example.tuneflow.ui.utils.WaveCircleView
@@ -59,10 +59,6 @@
                     android:layout_gravity="center"
                     android:src="@drawable/ic_mute" />
             </FrameLayout>
-
-
-
-
 
 
         </FrameLayout>
@@ -82,18 +78,18 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingHorizontal="20dp"
-                tools:text="Un titre"
                 android:textColor="@color/home_title"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Un titre" />
 
             <FrameLayout
+                android:id="@+id/vinyl"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:id="@+id/vinyl"
                 app:layout_constraintBaseline_toBaselineOf="@id/textTitle"
                 app:layout_constraintStart_toEndOf="@id/textTitle"
                 app:layout_constraintTop_toTopOf="@id/textTitle">
@@ -103,14 +99,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/covert_art"
-                    tools:src="@mipmap/ic_launcher"/>
+                    tools:src="@mipmap/ic_launcher" />
 
                 <ImageView
                     android:id="@+id/vinyl_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/vinyl_image"
-                    tools:src="@drawable/ic_vinyl"/>
+                    tools:src="@drawable/ic_vinyl" />
 
             </FrameLayout>
 
@@ -123,12 +119,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/divTitle"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/padding_screen"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/space_between_bloc"
-            tools:text="Auteur"
-            android:textColor="@color/author_text" />
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/padding_screen"
+            android:textColor="@color/subtitle"
+            tools:text="Auteur" />
 
         <TextView
             android:id="@+id/description"
@@ -149,11 +145,11 @@
             android:paddingVertical="10dp"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            tools:text="album - style - date"
             android:textColor="@color/description"
             android:textIsSelectable="true"
             android:textSize="14sp"
-            tools:ignore="Autofill" />
+            tools:ignore="Autofill"
+            tools:text="album - style - date" />
 
 
         <LinearLayout
@@ -190,6 +186,7 @@
 
             <!-- Middle button (bigger) -->
             <FrameLayout
+                android:id="@+id/frameLayoutLinkApple"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:layout_margin="8dp"
@@ -207,9 +204,9 @@
 
             <!-- Right button -->
             <FrameLayout
+                android:id="@+id/frameLayoutPlaylist"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:id="@+id/frameLayoutPlaylist"
                 android:layout_margin="8dp"
                 android:background="@drawable/bg_circle"
                 android:foreground="@drawable/ripple_circle">

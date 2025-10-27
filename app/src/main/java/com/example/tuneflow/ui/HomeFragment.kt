@@ -32,6 +32,43 @@ class HomeFragment : Fragment() {
         "country", "soul", "punk", "ambient", "blues", "trap", "afrobeat",
         "kpop", "dance", "disco", "latin"
     )
+
+
+    private val moodKeywords: Map<String, List<String>> = mapOf(
+        "chill" to listOf(
+            "chill", "relax", "mellow", "calm", "smooth", "ambient",
+            "focus", "study", "soft", "easy", "peaceful", "serene",
+            "meditation", "lounge", "gentle", "deep"
+        ),
+        "workout" to listOf(
+            "workout", "gym", "training", "pump", "energy", "upbeat",
+            "dance", "motivation", "cardio", "fitness", "hype", "party",
+            "adrenaline", "active", "power", "run", "move", "intense", "sport"
+        ),
+        "romantic" to listOf(
+            "romantic", "love", "lover", "date", "passion", "intimate",
+            "slow", "heart", "dreamy", "cozy", "cuddle", "affection",
+            "sweetheart", "couple", "devotion", "romance", "tender", "desire"
+        ),
+        "sad" to listOf(
+            "sad", "melancholy", "heartbreak", "lonely", "blue", "tear",
+            "emotional", "sorrow", "nostalgia", "reflection", "gloomy",
+            "moody", "bittersweet", "despair", "regret", "longing",
+            "melancholic", "aching"
+        ),
+        "happy" to listOf(
+            "happy", "joyful", "fun", "upbeat", "cheerful", "sunny",
+            "dance", "party", "smile", "positive", "energetic", "carefree",
+            "bright", "lively", "playful", "celebration", "good-vibes"
+        ),
+        "focus" to listOf(
+            "focus", "study", "concentration", "calm", "ambient",
+            "instrumental", "brain", "productivity", "work", "deep",
+            "minimal", "coding", "quiet", "thinking", "reading",
+            "meditation", "soft", "relaxed"
+        )
+    )
+
     private val db: TuneFlowDatabase
         get() = (activity as MainActivity).db
 

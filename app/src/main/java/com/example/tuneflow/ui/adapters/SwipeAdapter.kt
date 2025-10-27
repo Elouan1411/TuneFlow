@@ -2,8 +2,11 @@ package com.example.tuneflow.ui.adapters
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.example.tuneflow.MainActivity
 import com.example.tuneflow.R
@@ -57,6 +61,11 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         var isAddedToPlaylist = false
 
         val buttonAddPlaylist: ImageView = view.findViewById<ImageView>(R.id.button_add_playlist)
+
+        val buttonAppleMusic: FrameLayout = view.findViewById<FrameLayout>(R.id.frameLayoutLinkApple)
+        val textAppleMusic: TextView = view.findViewById<TextView>(R.id.appleMusicText)
+
+        val texteAuthor: TextView = view.findViewById<TextView>(R.id.textAuthor)
 
 
         // Animator pour la vinyle
@@ -116,6 +125,8 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         Glide.with(holder.view.context)
             .load(updateImageUrl(song.artworkUrl100))
             .apply(RequestOptions().transform(RoundedCorners(radiusPx)))
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .skipMemoryCache(true) // for transition
             .into(holder.coverImage)
 
         // Load vinyl //todo: change with wave ?
@@ -151,8 +162,18 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
                 removeFromPlaylist(holder)
                 db.removeSongFromPlaylist(song, "playlist_temp2")
             }
-
         }
+
+        // detect click want apple music
+        holder.buttonAppleMusic.setOnClickListener {
+            redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
+        }
+        holder.textAppleMusic.setOnClickListener {
+            redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
+        }
+
+        // detect click on author
+        // todo: faire un menu où y a les différents musique de l'auteur et un lien pour aller sur apple musique (meme menu que dans la barre de recherche je pense)
 
         // detect click on cover for stop music and do animation
         holder.coverImage.setOnClickListener {
@@ -192,7 +213,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * @param holder the view holder with the button
      */
     fun unLike(holder: SwipeViewHolder){
-        changeColorButton(holder.buttonLike, R.color.white)
+        changeColorButton(holder.buttonLike, R.color.icon)
     }
 
     /**
@@ -207,7 +228,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * @param holder the view holder with the button
      */
     fun removeFromPlaylist(holder: SwipeViewHolder){
-        changeColorButton(holder.buttonAddPlaylist, R.color.white)
+        changeColorButton(holder.buttonAddPlaylist, R.color.icon)
     }
 
     /**
@@ -272,6 +293,23 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
 
     fun containsSong(song: Song): Boolean {
         return items.any { it.trackId == song.trackId }
+    }
+
+    fun redirectOnAppleMusic(context: Context, trackUrl: String) {
+        // Intent pour Apple Music
+        val appIntent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(trackUrl)
+            setPackage("com.apple.android.music") // official package android for apple music
+        }
+
+        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(trackUrl))
+
+        try {
+            context.startActivity(appIntent)
+        } catch (e: ActivityNotFoundException) {
+            // if doesn't have application
+            context.startActivity(webIntent)
+        }
     }
 
 

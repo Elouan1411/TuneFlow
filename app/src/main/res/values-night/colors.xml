@@ -9,7 +9,7 @@
     <color name="overlay_gradient_center">#9E000000</color>
     <color name="overlay_gradient_end">#CC000000</color>
     <color name="home_title">#EBEBEB</color>
-    <color name="author_text">#A1A1AA</color>
+    <color name="subtitle">#A1A1AA</color>
     <color name="description">#ABABB1</color>
     <color name="apple_music_text">#71717A</color>
     <color name="bg_circle_color_start">#EC4899</color>
