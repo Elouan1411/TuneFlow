@@ -72,7 +72,7 @@ class DiscoverFragment : Fragment(), SwipeListener {
     private lateinit var arrowBottomSearch: ImageView
     private val MAX_RESULT: Int = 200
 
-    private var scrollViewOpen: Boolean = false
+    private var scrollViewOpen: Boolean = true
 
     private lateinit var musicLoader: ImageView
     private var loaderAnimator: ObjectAnimator? = null
@@ -104,7 +104,7 @@ class DiscoverFragment : Fragment(), SwipeListener {
 
             searchJob?.cancel()
             searchJob = lifecycleScope.launch {
-                delay(100) // debounce to avoid too many requests
+                delay(300) // debounce to avoid too many requests
                 if (query.isNotEmpty()) {
                     startMusicLoader()
 
@@ -339,7 +339,6 @@ class DiscoverFragment : Fragment(), SwipeListener {
         val container = requireView().findViewById<LinearLayout>(R.id.searchResultsContainer)
         container?.removeAllViews() // reset old results
 
-        revaluationArrowBottomSearch() // init -> open
         results.forEachIndexed { index, song ->
             val itemView = layoutInflater.inflate(R.layout.item_search_result, container, false)
 
@@ -380,8 +379,7 @@ class DiscoverFragment : Fragment(), SwipeListener {
 
 
             arrowBottomSearch.setOnClickListener {
-                revaluationArrowBottomSearch()
-                scrollViewOpen = !scrollViewOpen
+                toggleArrowBottomSearch()
             }
 
 
@@ -447,7 +445,10 @@ class DiscoverFragment : Fragment(), SwipeListener {
 
     }
 
-    private fun revaluationArrowBottomSearch(){
+    /**
+     * Changes the size of the scroll view and rotates the arrow in the other direction
+     */
+    private fun toggleArrowBottomSearch(){
         // change size
         val heightDp = if (!scrollViewOpen) 400 else 150
         val newHeightPx = (heightDp * resources.displayMetrics.density).toInt()
@@ -470,10 +471,10 @@ class DiscoverFragment : Fragment(), SwipeListener {
         animator.start()
 
         // change direction
-        arrowBottomSearch.animate().rotation(if (!scrollViewOpen) 180f else 0f)
+        arrowBottomSearch.animate().rotation(if (!scrollViewOpen) 0f else 180f)
             .setDuration(300).start()
 
-
+        scrollViewOpen = !scrollViewOpen
     }
 
 }
