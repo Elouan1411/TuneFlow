@@ -261,7 +261,7 @@ class HomeFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.e("myDebug", "API error: ${e.message}")
+                Log.e("API", "API error: ${e.message}")
             }
         }
     }

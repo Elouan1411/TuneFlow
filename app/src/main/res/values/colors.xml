@@ -27,5 +27,13 @@
     <color name="sound_background">#555555</color>
     <color name="green">#3DA40B</color>
     <color name="line">#D1D1D1</color>
+    <color name="bg_gradient_red_start">#E7819B</color>
+    <color name="bg_gradient_red_end">#F02020</color>
+    <color name="bg_gradient_orange_start">#F0BA27</color>
+    <color name="bg_gradient_orange_end">#FB7F00</color>
+    <color name="bg_gradient_purple_start">#EC4899</color>
+    <color name="bg_gradient_purple_end">#9333EA</color>
+    <color name="bg_gradient_green_start">#34B630</color>
+    <color name="bg_gradient_green_end">#4C926F</color>
 
 </resources>

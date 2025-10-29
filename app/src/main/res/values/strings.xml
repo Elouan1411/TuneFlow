@@ -31,6 +31,14 @@
     <string name="error">Erreur</string>
     <string name="error_occured">Oups ! Une erreur est survenue.</string>
     <string name="retry">Réessayer</string>
+    <string name="my_stats">Mes statistiques</string>
+    <string name="musical_activity">Votre activité musicale</string>
+    <string name="song_listened">Titres écoutés</string>
+    <string name="icon_music">logo musique</string>
+    <string name="liked_tracks">Morceaux likés</string>
+    <string name="most_listened_artist">Artiste préféré</string>
+    <string name="discovered_artists">Artistes découverts</string>
+    <string name="last_liked_songs">Les derniers morceaux likés</string>
     <dimen name="little_space_between_bloc">5dp</dimen>
     <dimen name="space_between_bloc">13dp</dimen>
     <dimen name="double_space_between_bloc">26dp</dimen>

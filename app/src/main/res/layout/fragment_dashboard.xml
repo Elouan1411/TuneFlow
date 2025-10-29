@@ -1,8 +1,224 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollProfil"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:text="Dashboard"
-    android:gravity="center"
-    android:textSize="36sp"/>
+    android:background="@drawable/bg_home_gradient"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/little_padding_screen"
+        android:paddingVertical="@dimen/padding_screen">
+
+        <!-- title -->
+        <TextView
+            android:id="@+id/title_discover"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:text="@string/my_stats"
+            android:textColor="@color/home_title"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- subtitle -->
+        <TextView
+            android:id="@+id/subtitle_discover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp"
+            android:text="@string/musical_activity"
+            android:textColor="@color/subtitle"
+            android:textSize="14sp" />
+
+
+        <GridLayout
+            android:id="@+id/gridLayoutDiscover"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alignmentMode="alignMargins"
+            android:columnCount="2"
+            android:columnOrderPreserved="false"
+            android:rowCount="3"
+            android:rowOrderPreserved="false"
+            android:useDefaultMargins="true">
+
+            <LinearLayout
+                android:id="@+id/layoutStat1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:background="@drawable/bg_text_rounded"
+                android:orientation="vertical"
+                android:padding="@dimen/space_between_bloc">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="@dimen/space_between_bloc"
+                    android:background="@drawable/bg_square_purple"
+                    android:contentDescription="@string/icon_music"
+                    android:padding="@dimen/space_between_bloc"
+                    android:src="@drawable/ic_apple_music" />
+
+                <TextView
+                    android:id="@+id/textNbSongs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="1dp"
+                    android:textColor="@color/home_title"
+                    android:textSize="18sp"
+                    tools:text="1,247" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/song_listened" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutStat2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:background="@drawable/bg_text_rounded"
+                android:orientation="vertical"
+                android:padding="@dimen/space_between_bloc">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="@dimen/space_between_bloc"
+                    android:background="@drawable/bg_gradient_red"
+                    android:contentDescription="@string/icon_music"
+                    android:padding="@dimen/space_between_bloc"
+                    android:src="@drawable/ic_heart_white" />
+
+                <TextView
+                    android:id="@+id/textNbLiked"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="1dp"
+                    android:textColor="@color/home_title"
+                    android:textSize="18sp"
+                    tools:text="342" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/liked_tracks" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutStat3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:background="@drawable/bg_text_rounded"
+                android:orientation="vertical"
+                android:padding="@dimen/space_between_bloc">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="@dimen/space_between_bloc"
+                    android:background="@drawable/bg_gradient_orange"
+                    android:contentDescription="@string/icon_music"
+                    android:padding="@dimen/space_between_bloc"
+                    android:src="@drawable/ic_increase" />
+
+                <TextView
+                    android:id="@+id/textNbAuthor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="1dp"
+                    android:textColor="@color/home_title"
+                    android:textSize="18sp"
+                    tools:text="156" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/discovered_artists" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutStat4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:background="@drawable/bg_text_rounded"
+                android:orientation="vertical"
+                android:padding="@dimen/space_between_bloc">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="@dimen/space_between_bloc"
+                    android:background="@drawable/bg_square_green"
+                    android:contentDescription="@string/icon_music"
+                    android:padding="@dimen/space_between_bloc"
+                    android:src="@drawable/ic_artist" />
+
+                <TextView
+                    android:id="@+id/textAuthorName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="1dp"
+                    android:textColor="@color/home_title"
+                    android:textSize="18sp"
+                    tools:text="Biga Ranx" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/most_listened_artist" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutStat5"
+                android:layout_width="0dp"
+                android:layout_height="350dp"
+                android:layout_rowWeight="1"
+                android:layout_columnSpan="2"
+                android:layout_columnWeight="2"
+                android:background="@drawable/bg_text_rounded"
+                android:orientation="vertical"
+                android:padding="@dimen/space_between_bloc">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/last_liked_songs" />
+
+                <com.example.tuneflow.InnerScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:fillViewport="true"
+                    android:visibility="visible">
+
+                    <LinearLayout
+                        android:id="@+id/lastLikeContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="8dp" />
+                </com.example.tuneflow.InnerScrollView>
+
+
+            </LinearLayout>
+
+
+        </GridLayout>
+    </LinearLayout>
+</ScrollView>
