@@ -20,11 +20,7 @@ class TuneFlowDatabase(
         val createUserTable = """
             CREATE TABLE $TABLE_USER(
                 $USER_ID INTEGER PRIMARY KEY,
-                $USER_TOTAL_LISTENING_TIME LONG DEFAULT 0,
-                $USER_DISCOVERED_SONGS INTEGER DEFAULT 0,
-                $USER_LIKED_SONGS INTEGER DEFAULT 0,
-                $USER_PLAYLISTS_COUNT INTEGER DEFAULT 0,
-                $USER_DISCOVERED_ARTISTS INTEGER DEFAULT 0
+                $USER_TOTAL_LISTENING_TIME LONG DEFAULT 0
             );
         """.trimIndent()
         db.execSQL(createUserTable)
@@ -105,6 +101,12 @@ class TuneFlowDatabase(
     }
 
 
+    /**
+     * Initializes the user table in the database if it doesn’t already exist.
+     *
+     * Checks if the default user (ID = 0) is present in the table.
+     * If not, it creates the entry with default values.
+     */
     fun initializeDb() {
         val db = this.writableDatabase
         val cursor = db.rawQuery(
@@ -118,34 +120,18 @@ class TuneFlowDatabase(
             val values = ContentValues().apply {
                 put(USER_ID, 0)
                 put(USER_TOTAL_LISTENING_TIME, 0)
-                put(USER_DISCOVERED_SONGS, 0)
-                put(USER_LIKED_SONGS, 0)
-                put(USER_PLAYLISTS_COUNT, 0)
-                put(USER_DISCOVERED_ARTISTS, 0)
             }
             db.insert(TABLE_USER, null, values)
         }
     }
 
-    fun incrementDiscoverSongs() {
-        val db = writableDatabase
 
-        // get current value
-        val cursor = db.rawQuery(
-            "SELECT $USER_DISCOVERED_SONGS FROM $TABLE_USER WHERE $USER_ID = ?",
-            arrayOf("0")
-        )
-        if (cursor.moveToFirst()) {
-            var current = cursor.getInt(cursor.getColumnIndexOrThrow(USER_DISCOVERED_SONGS))
-            val values = ContentValues().apply {
-                put(USER_DISCOVERED_SONGS, ++current)
-            }
 
-            db.update(TABLE_USER, values, "$USER_ID = 0", arrayOf())
-        }
-        cursor.close()
-    }
 
+    /**
+     * Adds the given sound to the database of listened sounds
+     * @param song the sound listened
+     */
     fun addListenedSong(song: Song) {
         val db = writableDatabase
 
@@ -172,7 +158,11 @@ class TuneFlowDatabase(
         }
     }
 
-
+    /**
+     * Adds a like to the database for the given song
+     * @param songId ID of the liked sound
+     * @param isLiked boolean to know if we should add the like or remove it
+     */
     fun addLikedSong(songId: Long, isLiked: Boolean) {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -281,7 +271,8 @@ class TuneFlowDatabase(
                 db.endTransaction()
                 return // playlist doesn't exist
             }
-            val playlistId = cursorPlaylist.getLong(cursorPlaylist.getColumnIndexOrThrow(PLAYLIST_ID))
+            val playlistId =
+                cursorPlaylist.getLong(cursorPlaylist.getColumnIndexOrThrow(PLAYLIST_ID))
             cursorPlaylist.close()
 
             // remove songs in playlist_songs
@@ -330,10 +321,16 @@ class TuneFlowDatabase(
     }
 
 
-
-
-
-    // If limit == -1  -> no limit
+    /**
+     * Returns the top values for a given column in the user's listening data.
+     *
+     * Counts how many liked songs there are for each value in the column,
+     * then returns the most frequent ones.
+     *
+     * @param column The column to check (e.g., artist, genre, etc.).
+     * @param limit Maximum number of values to return (default 5). If <= 0, returns all.
+     * @return A list of the top values for the column, sorted by how often they appear.
+     */
     fun getTopValues(column: String, limit: Int = 5): List<String> {
         val db = readableDatabase
         val topValues = mutableListOf<String>()
@@ -358,6 +355,14 @@ class TuneFlowDatabase(
     }
 
 
+    /**
+     * Retrieves the top N year groups of songs liked by the user.
+     *
+     * Each year returned represents a 5-year group. For example, 2020 means the range 2015–2020.
+     *
+     * @param limit The maximum number of year groups to retrieve (default is 5).
+     * @return A list of integers representing the top `limit` year groups of liked songs.
+     */
     fun getTopYearGroups(limit: Int = 5): List<Int> {
         val db = readableDatabase
         val topYears = mutableListOf<Int>()
@@ -381,15 +386,34 @@ class TuneFlowDatabase(
     }
 
 
-
+    /**
+     * Retrieves the top N favorite styles of the user.
+     *
+     * Based on the more general `getTopValues` function.
+     *
+     * @param limit The maximum number of top styles to retrieve (default is 5).
+     * @return A list of the user's top `limit` favorite styles.
+     */
     fun getTopStyles(limit: Int = 5): List<String> {
         return getTopValues(LISTENING_STYLE, limit)
     }
 
+    /**
+     * Retrieves the top N favorite artists of the user.
+     *
+     * Based on the more general `getTopValues` function.
+     *
+     * @param limit The maximum number of top artists to retrieve (default is 5).
+     * @return A list of the user's top `limit` favorite artists.
+     */
     fun getTopAuthors(limit: Int = 5): List<String> {
         return getTopValues(LISTENING_AUTHOR, limit)
     }
 
+    /**
+     * Determines if the user has already listened to the sound
+     * @return true if he has already listened
+     */
     fun soundAlreadyListened(songId: Long): Boolean {
         val db = readableDatabase
         val query = """
@@ -404,6 +428,10 @@ class TuneFlowDatabase(
         return alreadyListened
     }
 
+    /**
+     * counts the number of likes on the user's account
+     * @return number of likes
+     */
     fun getLikedCount(): Int {
         val db = readableDatabase
         val query = """
@@ -420,12 +448,31 @@ class TuneFlowDatabase(
         return count
     }
 
+    /**
+     * Checks if a song is liked in the database.
+     * @param songId id of the song
+     * @return true if song lidek
+     */
+    fun isSongLiked(songId: Long): Boolean {
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_LISTENING_DATA,
+            arrayOf(LISTENING_LIKED),
+            "$LISTENING_SONG_ID = ? AND $LISTENING_LIKED = 1",
+            arrayOf(songId.toString()),
+            null, null, null
+        )
+        val liked = cursor.count > 0
+        cursor.close()
+        return liked
+    }
+
 
 
     companion object {
         // --- Database Info ---
         const val DB_NAME = "tuneflow_db"
-        const val DB_VERSION = 2
+        const val DB_VERSION = 1
 
         // --- Table Names ---
         const val TABLE_USER = "user"
@@ -438,10 +485,6 @@ class TuneFlowDatabase(
         // --- User Fields ---
         const val USER_ID = "id"
         const val USER_TOTAL_LISTENING_TIME = "totalListeningTime"
-        const val USER_DISCOVERED_SONGS = "discoveredSongs"
-        const val USER_LIKED_SONGS = "likedSongs"
-        const val USER_PLAYLISTS_COUNT = "playlistsCount"
-        const val USER_DISCOVERED_ARTISTS = "discoveredArtists"
 
         // --- Song Fields ---
         const val SONG_ID = "id"

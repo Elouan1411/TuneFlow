@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/layoutOneResult"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:padding="@dimen/space_between_bloc"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Cover -->
+    <ImageView
+        android:id="@+id/imageCoverSearch"
+        android:layout_width="60dp"
+        android:layout_gravity="center_vertical"
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"
+        tools:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/covert_art" />
+
+    <!-- Texte titre + artiste + album -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingStart="8dp">
+
+        <TextView
+            android:id="@+id/titleSearch"
+            tools:text="Titre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/home_title"
+            android:textStyle="bold"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/authorSearch"
+            tools:text="Artiste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/description"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/albumSearch"
+            android:layout_width="wrap_content"
+            tools:text="Album"
+            android:layout_height="wrap_content"
+            android:textColor="@color/description"
+            android:textStyle="italic"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <!-- Button -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/buttonLikeSearch"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_heart"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/like"/>
+
+        <ImageButton
+            android:id="@+id/buttonPlay"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_play"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/play_pause"/>
+
+        <ImageButton
+            android:id="@+id/buttonAdd"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_more"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/add_to_playlist"/>
+    </LinearLayout>
+</LinearLayout>

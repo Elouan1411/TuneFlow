@@ -1,6 +1,7 @@
 package com.example.tuneflow
 
 import android.os.Bundle
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -23,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     val homeFragment = HomeFragment()
     val dashboardFragment = DashboardFragment()
     val discoverFragment = DiscoverFragment()
+    var moodFromDiscover: String? = null
 
 
 
@@ -33,13 +35,8 @@ class MainActivity : AppCompatActivity() {
 
         // DevDatabaseUtils.deleteDatabase(this) // TODO: just for dev
 
-
         db = TuneFlowDatabase(this)
         db.initializeDb()
-
-
-
-
 
 
         val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -122,6 +119,12 @@ class MainActivity : AppCompatActivity() {
         if (fragment is SwipeListener) fragment.onSwipeLeft()
     }
 
+    /**
+     * Shows the specified fragment and hides the others,
+     * then updates the BottomNavigationView to match.
+     *
+     * @param fragmentToShow The fragment to display.
+     */
     fun showFragment(fragmentToShow: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
 
@@ -140,10 +143,6 @@ class MainActivity : AppCompatActivity() {
             discoverFragment -> bottomNavigation.selectedItemId = R.id.nav_discover
         }
     }
-
-
-
-
 
 
 }

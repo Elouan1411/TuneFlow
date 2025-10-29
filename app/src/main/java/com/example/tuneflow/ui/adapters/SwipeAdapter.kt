@@ -7,14 +7,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.ImageViewCompat
@@ -24,16 +26,16 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
-import com.example.tuneflow.MainActivity
 import com.example.tuneflow.R
 import com.example.tuneflow.data.Song
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
+import com.example.tuneflow.ui.HomeFragment
 import com.example.tuneflow.ui.adapters.SwipeAdapter.SwipeViewHolder
 
 
 
-class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase) :
+class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase, private val homeFragment: HomeFragment) :
     RecyclerView.Adapter<SwipeViewHolder>() {
 
 
@@ -66,6 +68,10 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         val textAppleMusic: TextView = view.findViewById<TextView>(R.id.appleMusicText)
 
         val texteAuthor: TextView = view.findViewById<TextView>(R.id.textAuthor)
+
+        val layoutInfoCurrentMood: RelativeLayout = view.findViewById<RelativeLayout>(R.id.layoutInfoCurrentMood)
+
+        val rootLayout: FrameLayout = view.findViewById(R.id.rootLayout)
 
 
         // Animator pour la vinyle
@@ -129,7 +135,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
             .skipMemoryCache(true) // for transition
             .into(holder.coverImage)
 
-        // Load vinyl //todo: change with wave ?
+        // Load vinyl
         Glide.with(holder.view.context)
             .load(song.artworkUrl60)
             .apply(RequestOptions().transform(CircleCrop()))
@@ -164,6 +170,11 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
             }
         }
 
+        // detect click remove mood
+        holder.layoutInfoCurrentMood.setOnClickListener {
+            homeFragment.stopMood()
+        }
+
         // detect click want apple music
         holder.buttonAppleMusic.setOnClickListener {
             redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
@@ -184,6 +195,43 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
                 pauseMusic(holder)
             }
         }
+
+        holder.vinyl.setOnClickListener {
+            // tap play
+            if (holder.overlayCover.isVisible) {
+                playMusic(holder)
+            } else {
+                pauseMusic(holder)
+            }
+        }
+
+        // double click for like
+        // double click for like
+        var lastClickTime = 0L
+        val DOUBLE_CLICK_TIME_DELTA = 300 // 300 ms max between clicks
+
+        holder.view.setOnTouchListener(fun(v: View, event: MotionEvent): Boolean {
+            if (event.action == MotionEvent.ACTION_UP) {
+                val clickTime = System.currentTimeMillis()
+                if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+                    // Double click detected
+                    val x = event.x
+                    val y = event.y
+                    showHeart(x, y, holder.itemView.context, holder.rootLayout)
+
+                    holder.isLiked = !holder.isLiked
+                    if (holder.isLiked) {
+                        like(holder)
+                    } else {
+                        unLike(holder)
+                    }
+                    db.addLikedSong(song.trackId, holder.isLiked)
+                }
+                lastClickTime = clickTime
+            }
+            return true
+        })
+
     }
 
 
@@ -194,6 +242,25 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
     fun initAdapter(holder: SwipeViewHolder){
         playMusic(holder)
         unLike(holder)
+        removeFromPlaylist(holder)
+        holder.isLiked = false
+        holder.isAddedToPlaylist = false
+
+        val mood: String = homeFragment.getMood()
+        if (mood.isNotEmpty()){
+            val textView = holder.layoutInfoCurrentMood.getChildAt(1) as TextView
+            val moodsTranslations = mapOf(
+                "happy" to "joyeux",
+                "chill" to "chill",
+                "workout" to "sport",
+                "romantic" to "romantique",
+                "sad" to "triste",
+                "focus" to "travail"
+            )
+
+            textView.text =  "Quitter le mood ${moodsTranslations[mood]}"
+            holder.layoutInfoCurrentMood.visibility = View.VISIBLE
+        }
     }
 
     /**
@@ -267,34 +334,39 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
 
     override fun getItemCount(): Int = items.size
 
+    /**
+     * Adds a song to the list and updates the adapter.
+     */
     fun addPage(song: Song) {
         items.add(song)
         notifyItemInserted(items.size - 1)
     }
 
-    fun removeFirstPage() {
-        if (items.isNotEmpty()) {
-            items.removeAt(0)
-            notifyItemRemoved(0)
-        }
-    }
-
+    /**
+     * Returns the song at the given position, or null if invalid.
+     */
     fun getSongAt(position: Int): Song? {
-        return if (position in 0 until items.size) {
-            items[position]
-        } else {
-            null
-        }
+        return if (position in 0 until items.size) items[position] else null
     }
 
+    /**
+     * Returns the image URL in higher resolution.
+     */
     fun updateImageUrl(url: String): String {
         return url.replace("100x100", "600x600")
     }
 
+    /**
+     * Checks if the song already exists in the list.
+     */
     fun containsSong(song: Song): Boolean {
         return items.any { it.trackId == song.trackId }
     }
 
+
+    /**
+     * Opens the song in Apple Music if installed, otherwise in a web browser.
+     */
     fun redirectOnAppleMusic(context: Context, trackUrl: String) {
         // Intent pour Apple Music
         val appIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -312,5 +384,41 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         }
     }
 
+    /**
+     * Shows a heart animation at the given position in a FrameLayout.
+     * The heart floats upward with a slight random horizontal drift and fades out.
+     *
+     * @param x The X coordinate where the heart should appear (in pixels).
+     * @param y The Y coordinate where the heart should appear (in pixels).
+     * @param context The context used to create the ImageView.
+     * @param rootLayout The FrameLayout where the heart will be added and animated.
+     */
+
+    fun showHeart(x: Float, y: Float, context: Context, rootLayout: FrameLayout) {
+        val randomOffsetX = (-50..50).random() // random horizontal
+        val startX = (x - 50 + randomOffsetX).toInt()
+        val startY = (y - 50).toInt()
+        val endY = startY - 150 // move heart up by 150px
+
+        val heart = ImageView(context).apply {
+            setImageResource(R.drawable.ic_heart)
+            layoutParams = FrameLayout.LayoutParams(100, 100).apply {
+                leftMargin = startX
+                topMargin = startY
+            }
+        }
+
+        rootLayout.addView(heart)
+
+        heart.animate()
+            .translationYBy(-150f) // move up
+            .translationXBy(randomOffsetX.toFloat()) // horizontal drift
+            .alpha(0f)
+            .scaleX(1.5f)
+            .scaleY(1.5f)
+            .setDuration(600)
+            .withEndAction { rootLayout.removeView(heart) }
+            .start()
+    }
 
 }

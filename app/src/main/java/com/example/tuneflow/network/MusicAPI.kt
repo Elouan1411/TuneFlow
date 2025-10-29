@@ -8,8 +8,9 @@ import java.nio.charset.StandardCharsets
 
 interface MusicAPI {
 
-    @GET("search?media=music&limit=200")
+    @GET("search?media=music")
     suspend fun getSongs(
-        @Query("term") searchTerm: String
+        @Query("term") searchTerm: String,
+        @Query("limit") limit: Int = 200 // default value
     ): SongResponse
 }

@@ -17,6 +17,17 @@
     <string name="discover">Découvrir</string>
     <string name="explore_music">Explorez la musique selon votre humeur</string>
     <string name="search">rechercher</string>
+    <string name="leave_mood_sport">Quitter le mood Sport</string>
+    <string name="left_arrow">flèche gauche</string>
+    <string name="mute_icon">icon muet</string>
+    <string name="add_to_playlist">Ajouter à la playlist</string>
+    <string name="play_pause">Play Pause</string>
+    <string name="like">Like</string>
+    <string name="no_result">Aucun résultat trouvé</string>
+    <string name="search_song_artiste">Rechercher une musique, un artiste...</string>
+    <string name="arrow_bottom">Flèche bas</string>
+    <string name="loader">chargement</string>
+    <string name="loading">Chargement...</string>
     <dimen name="little_space_between_bloc">5dp</dimen>
     <dimen name="space_between_bloc">13dp</dimen>
     <dimen name="double_space_between_bloc">26dp</dimen>

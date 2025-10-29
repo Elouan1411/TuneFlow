@@ -2,9 +2,34 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/rootLayout"
     android:layout_height="match_parent"
     android:background="@drawable/bg_home_gradient"
     android:gravity="center">
+
+    <RelativeLayout
+        android:id="@+id/layoutInfoCurrentMood"
+        android:layout_width="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/padding_screen"
+        android:layout_marginStart="@dimen/little_padding_screen">
+        <ImageView
+            android:id="@+id/arrow_left"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@string/left_arrow"
+            android:src="@drawable/ic_arrow_left"/>
+        <TextView
+            android:layout_toEndOf="@id/arrow_left"
+            android:layout_marginStart="5dp"
+            android:textColor="@color/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/leave_mood_sport"/>
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/relativeLayoutHome"
@@ -40,7 +65,7 @@
                 android:background="@drawable/overlay_border"
                 android:visibility="gone" />
 
-            <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <FrameLayout
                 android:id="@+id/sound_container"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
@@ -57,6 +82,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_gravity="center"
+                    android:contentDescription="@string/mute_icon"
                     android:src="@drawable/ic_mute" />
             </FrameLayout>
 
@@ -178,7 +204,7 @@
                     android:id="@+id/button_like"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginStart="15dp"
                     android:layout_marginTop="15dp"
                     android:contentDescription="@string/left"
                     android:src="@drawable/ic_heart" />
@@ -197,9 +223,9 @@
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginStart="15dp"
                     android:contentDescription="@string/middle"
-                    android:src="@drawable/ic_play" />
+                    android:src="@drawable/ic_apple_music" />
             </FrameLayout>
 
             <!-- Right button -->
@@ -215,7 +241,7 @@
                     android:id="@+id/button_add_playlist"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginStart="15dp"
                     android:layout_marginTop="15dp"
                     android:contentDescription="@string/right"
                     android:src="@drawable/ic_add_playlist" />

@@ -1,14 +1,23 @@
 package com.example.tuneflow.ui
 
+import android.animation.ObjectAnimator
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.SearchEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.RequestOptions
 import com.example.tuneflow.MainActivity
 import com.example.tuneflow.player.MusicPlayerManager
 import com.example.tuneflow.R
@@ -17,15 +26,18 @@ import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.ui.adapters.SwipeAdapter
 import com.example.tuneflow.network.ApiClient
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 class HomeFragment : Fragment() {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var adapter: SwipeAdapter
 
-    private var pagesRemoved = 0
+    private var fromMood: Boolean = false
+    private var moodDiscover: String = ""
+    private lateinit var loaderImage: ImageView
+    private lateinit var layoutLoader: RelativeLayout
+    private var loaderAnimator: ObjectAnimator? = null
+
     private val globalStyles = listOf(
         "pop", "rock", "rap", "hip hop", "electro", "indie", "jazz",
         "classical", "metal", "rnb", "reggae", "techno", "house", "funk",
@@ -73,10 +85,6 @@ class HomeFragment : Fragment() {
         get() = (activity as MainActivity).db
 
 
-    companion object {
-        private const val MAX_PAGES_HISTORY = 10
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -85,10 +93,27 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         val viewPager = view.findViewById<ViewPager2>(R.id.viewPager)
 
-        val adapter = SwipeAdapter(mutableListOf(), db)
+        layoutLoader = view.findViewById<RelativeLayout>(R.id.layoutLoader)
+        loaderImage = view.findViewById<ImageView>(R.id.loaderImage)
+
+        displayLoader(view)
+
+        val adapter = SwipeAdapter(mutableListOf(), db, this)
         viewPager.adapter = adapter
 
-        fetchSongs(adapter, viewPager)
+        val activity = requireActivity() as MainActivity
+        activity.moodFromDiscover?.let { mood ->
+            if (mood.isEmpty()) {
+                fromMood = false
+            } else {
+
+                fromMood = true
+                moodDiscover = mood
+            }
+            activity.moodFromDiscover = null // reset si besoin
+        }
+
+        fetchSongs(adapter)
         //TODO add loader animate
 
         // listener on swipe
@@ -96,40 +121,55 @@ class HomeFragment : Fragment() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
 
+
                 val song = adapter.getSongAt(position)
                 song?.let {
                     MusicPlayerManager.playSong(it.previewUrl, it.trackId)
                     db.addListenedSong(song)
                 }
-                // increment db
-                db.incrementDiscoverSongs()
 
 
                 // Preload new songs when you get to 5 songs from the end
                 val threshold = 5
                 if (adapter.itemCount - position <= threshold) {
-                    fetchSongs(adapter, viewPager)
+                    fetchSongs(adapter)
                 }
             }
         })
         return view
     }
 
-    private fun fetchSongs(adapter: SwipeAdapter, viewPager: ViewPager2) {
+
+    /**
+     * Fetches songs from the API and adds them via the adapter.
+     *
+     * Three different scenarios:
+     * - Fetch songs based on the chosen mood if fromMood = true
+     * - Fetch random songs if the user's preference database is not yet sufficiently populated
+     * - Fetch songs according to the user's preferences otherwise
+     *
+     * Ensures that songs already listened to are not suggested again.
+     * The selected songs are then shuffled and provided to the adapter.
+     *
+     * @param adapter The SwipeAdapter used by the ViewPager2 to display the songs.
+     */
+
+    private fun fetchSongs(adapter: SwipeAdapter) {
         val NB_FOR_EACH_SEARCH = 2
         val YEAR_GROUP_SIZE = 5
         val THRESHOLD_DISCOVER = 10
         // Fetch songs safely
         lifecycleScope.launch {
             try {
-                var discover:Boolean = db.getLikedCount() < THRESHOLD_DISCOVER
-                val search: List<String> = if (discover) {
+                var discover: Boolean = db.getLikedCount() < THRESHOLD_DISCOVER
+
+                val search: List<String> = if (fromMood) {
+                    buildSearchMood()
+                } else if (discover) {
                     buildSearchTermsDiscover()
                 } else {
                     buildSearchTerms()
                 }
-
-
 
 
                 var songsSelected = mutableListOf<Song>()
@@ -137,30 +177,31 @@ class HomeFragment : Fragment() {
                 // We do not scan the last element (the date)
                 // It will be used for a second filter for the style chosen at random
                 for (j in 0 until search.size - 1) {
-                    val songs = ApiClient.api.getSongs(cleanUrlForApi(search[j])).results
+                    val songs = ApiClient.api.getSongs(ApiClient.cleanUrlForApi(search[j])).results
 
 
                     var find = 0
                     var i = 0
                     // we select two sounds that the user has never listened to
                     while (find != NB_FOR_EACH_SEARCH && i < songs.size) {
-                        if (!isSongValid(songs[i])){
+                        if (!isSongValid(songs[i])) {
                             i++
                             continue
                         }
                         if (!adapter.containsSong(songs[i]) && !db.soundAlreadyListened(songs[i].trackId)) {
                             // for le random style
-                            if (j == search.size - 2 && !discover){
+                            if (j == search.size - 2 && search.size == 6) {
                                 // we check that the year corresponds
                                 val year = search.last().toInt() // the chosen year groupe
                                 val releaseDate = songs[i].releaseDate
-                                val yearSong = releaseDate?.substringBefore("-")?.toIntOrNull() // safe conversion
+                                val yearSong = releaseDate?.substringBefore("-")
+                                    ?.toIntOrNull() // safe conversion
                                 if (yearSong != null && yearSong in (year - YEAR_GROUP_SIZE)..year) {
                                     songsSelected.add(songs[i])
                                     find++
                                 }
 
-                            }else{
+                            } else {
                                 songsSelected.add(songs[i])
                                 find++
                             }
@@ -168,7 +209,7 @@ class HomeFragment : Fragment() {
                         }
                         i++
                     }
-                    if (find != NB_FOR_EACH_SEARCH){
+                    if (find != NB_FOR_EACH_SEARCH) {
                         // Take enough random songs to complete the quota of 2
                         val needed = NB_FOR_EACH_SEARCH - find
                         val randomSongs = songs.shuffled().take(needed)
@@ -177,7 +218,8 @@ class HomeFragment : Fragment() {
                 }
 
                 val res = songsSelected.shuffled()
-
+                // delete loader
+                layoutLoader.visibility = View.GONE
                 // we insert the selected sounds
                 res.forEach { song ->
                     adapter.addPage(song)
@@ -201,15 +243,33 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // To fill the database at the beginning
-    fun buildSearchTermsDiscover(): List<String> {
+    /**
+     * Generates a list of keywords based on the current mood
+     * @return a list of 5 words synonymous with the current mood (moodDiscover)
+     */
+    private fun buildSearchMood(): List<String> {
+        return moodKeywords[moodDiscover]!!.shuffled().take(5)
+    }
+
+    /**
+     * This function is used until the user has liked enough of their content.
+     * It replaces buildSearchTerms (because buildSearchTerms requires the user's database to be at least partially populated).
+     * It is only used at the beginning, when the user has just installed the application.
+     * @return A list of 5 keywords to be used in the fetchSongs function.
+     */
+    private fun buildSearchTermsDiscover(): List<String> {
         // take 5 different style
         // todo:ask style and author at first
         return globalStyles.shuffled().take(5)
     }
 
-    // suggestion algorithm
-    fun buildSearchTerms(): List<String> {
+    /**
+     * Algorithm that generates words to send to the API based on user preferences calculated with
+     * likes (era, musical genre, artists) but also by proposing new styles so that
+     * the user discovers new things and does not get stuck in one style
+     * @return A list containing 5 keywords and 1 date, which will be used in the fetchSongs function
+     */
+    private fun buildSearchTerms(): List<String> {
         val styles = db.getTopStyles(5)
         val authors = db.getTopAuthors(5)
 
@@ -221,11 +281,11 @@ class HomeFragment : Fragment() {
         val candidates = mutableListOf<Pair<String, Double>>()
 
         // Add styles and authors
-        for (s in styles.indices){
+        for (s in styles.indices) {
             candidates.add(styles[s] to weightPreferences[s])
         }
 
-        for (a in authors.indices){
+        for (a in authors.indices) {
             candidates.add(authors[a] to weightPreferences[a])
         }
 
@@ -266,18 +326,11 @@ class HomeFragment : Fragment() {
     }
 
 
-    fun cleanUrlForApi(term: String): String {
-        // replace space with +
-        val withPluses = term.replace(" ", "+")
-        // Removes all unauthorized characters
-        return withPluses.replace(Regex("[^a-zA-Z0-9.+\\-_*]"), "")
-    }
-
     /**
      * Checks if a Song has all required information.
      * @return true if no essential fields are empty, false otherwise
      */
-    fun isSongValid(song: Song): Boolean {
+    private fun isSongValid(song: Song): Boolean {
         return listOf(
             song.artistName,
             song.collectionName,
@@ -294,6 +347,51 @@ class HomeFragment : Fragment() {
         ).all { !it.isNullOrBlank() } // true if is valid
     }
 
+    /**
+     * Get the currently playing mood
+     */
+    fun getMood(): String {
+        return moodDiscover
+    }
+
+    /**
+     * Remove search by mood
+     */
+    fun stopMood() {
+        (activity as? MainActivity)?.moodFromDiscover = ""
+        (activity as? MainActivity)?.homeFragment?.let {
+            (activity as MainActivity).showFragment(it)
+        }
+    }
+
+    /**
+     * Displays a rotating vinyl loader.
+     * Sets the loader image, applies a color tint, fades it in,
+     * and starts an infinite rotation animation.
+     * @param view
+     */
+    fun displayLoader(view: View) {
+        // display loader
+        Glide.with(view.context)
+            .load(R.drawable.ic_vinyl)
+            .apply(RequestOptions().transform(CircleCrop()))
+            .into(loaderImage)
+        val color = ContextCompat.getColor(view.context, R.color.subtitle)
+        ImageViewCompat.setImageTintList(loaderImage, ColorStateList.valueOf(color))
+        loaderImage.apply {
+            // Fade in
+            alpha = 0f
+            visibility = View.VISIBLE
+            animate().alpha(1f).setDuration(100).start()
+        }
+
+        loaderAnimator = ObjectAnimator.ofFloat(loaderImage, "rotation", 0f, 360f).apply {
+            duration = 1500
+            repeatCount = ObjectAnimator.INFINITE
+            interpolator = LinearInterpolator()
+            start()
+        }
+    }
 
 
 }

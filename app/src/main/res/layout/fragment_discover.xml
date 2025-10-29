@@ -43,7 +43,8 @@
             android:orientation="horizontal"
             android:padding="8dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="@dimen/space_between_bloc">
+<!--            todo -> ajouter une croix pour supprimer ce qu'on a ecrit -->
 
             <ImageView
                 android:layout_width="24dp"
@@ -53,15 +54,89 @@
                 android:layout_marginEnd="8dp" />
 
             <EditText
-                android:layout_width="match_parent"
+                android:id="@+id/editTextSearchBar"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="Rechercher une musique, un artiste..."
+                android:hint="@string/search_song_artiste"
                 android:background="@null"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/subtitle"
                 android:textColorHint="@color/subtitle"
+                android:layout_weight="1"
                 android:inputType="text"
                 android:singleLine="true" />
+
+            <ImageView
+                android:id="@+id/musicLoader"
+                android:layout_width="24dp"
+                android:layout_marginStart="@dimen/space_between_bloc"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone"
+                tools:src="@drawable/ic_vinyl"
+                android:layout_gravity="center"/>
+
+            <ImageView
+                android:id="@+id/clear_text"
+                android:layout_width="24dp"
+                android:layout_marginStart="@dimen/space_between_bloc"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_close"
+                android:layout_gravity="center"/>
         </LinearLayout>
+
+
+
+        <TextView
+            android:id="@+id/noResultsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_result"
+            android:textColor="@color/subtitle"
+            android:layout_marginBottom="@dimen/space_between_bloc"
+            android:visibility="gone"
+            android:layout_gravity="center_horizontal"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/space_between_bloc"
+            android:background="@drawable/bg_text_rounded"
+            android:id="@+id/layoutResult"
+            android:visibility="gone">
+
+            <com.example.tuneflow.InnerScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+
+                android:visibility="visible"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:id="@+id/searchResultsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp"/>
+            </com.example.tuneflow.InnerScrollView>
+
+            <ImageView
+                android:id="@+id/arrowBottomSearch"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:contentDescription="@string/arrow_bottom"
+                android:src="@drawable/ic_arrow_bottom"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+
+
+
+
 
 
         <GridLayout
@@ -80,9 +155,10 @@
                 android:layout_width="0dp"
                 android:layout_height="170dp"
                 android:layout_columnWeight="1"
+                android:layout_marginVertical="8dp"
                 android:layout_rowWeight="1"
-                android:layout_margin="8dp"
-                android:foreground="?android:attr/selectableItemBackground">
+                android:layout_marginEnd="8dp"
+                android:foreground="@drawable/ripple_cover">
 
 
                 <ImageView
@@ -111,8 +187,9 @@
                 android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
-                android:layout_margin="8dp"
-                android:foreground="?android:attr/selectableItemBackground">
+                android:layout_marginVertical="8dp"
+                android:layout_marginStart="8dp"
+                android:foreground="@drawable/ripple_cover">
 
 
                 <ImageView
@@ -141,8 +218,9 @@
                 android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
-                android:layout_margin="8dp"
-                android:foreground="?android:attr/selectableItemBackground">
+                android:layout_marginVertical="8dp"
+                android:layout_marginEnd="8dp"
+                android:foreground="@drawable/ripple_cover">
 
 
                 <ImageView
@@ -170,9 +248,10 @@
                 android:layout_width="0dp"
                 android:layout_height="170dp"
                 android:layout_columnWeight="1"
+                android:layout_marginVertical="8dp"
                 android:layout_rowWeight="1"
-                android:layout_margin="8dp"
-                android:foreground="?android:attr/selectableItemBackground">
+                android:layout_marginStart="8dp"
+                android:foreground="@drawable/ripple_cover">
 
 
                 <ImageView
@@ -201,8 +280,9 @@
                 android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
-                android:layout_margin="8dp"
-                android:foreground="?android:attr/selectableItemBackground">
+                android:layout_marginEnd="8dp"
+                android:layout_marginVertical="8dp"
+                android:foreground="@drawable/ripple_cover">
 
 
                 <ImageView
@@ -231,8 +311,9 @@
                 android:layout_height="170dp"
                 android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
-                android:layout_margin="8dp"
-                android:foreground="?android:attr/selectableItemBackground">
+                android:layout_marginVertical="8dp"
+                android:layout_marginStart="8dp"
+                android:foreground="@drawable/ripple_cover">
 
 
                 <ImageView
