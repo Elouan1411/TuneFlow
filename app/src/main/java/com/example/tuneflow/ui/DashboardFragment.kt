@@ -61,10 +61,32 @@ class DashboardFragment : Fragment(), SwipeListener {
         statsLayouts = listOf(layoutStat1, layoutStat2, layoutStat3, layoutStat4, layoutStat5)
 
         // display stats
-        view.findViewById<TextView>(R.id.textNbSongs).text = formatNumber(db.getTotalListeningCount())
-        view.findViewById<TextView>(R.id.textNbLiked).text = formatNumber(db.getLikedCount())
-        view.findViewById<TextView>(R.id.textNbAuthor).text = formatNumber(db.getDistinctArtistsCount())
-        view.findViewById<TextView>(R.id.textAuthorName).text = db.getTopOneArtist()
+        // --- Total listened ---
+        val totalListened = db.getTotalListeningCount()
+        val textNbSongs = view.findViewById<TextView>(R.id.textNbSongs)
+        val textTitleListened = view.findViewById<TextView>(R.id.textTitleListened)
+
+        textNbSongs.text = formatNumber(totalListened)
+        textTitleListened.text = if (totalListened < 2) "Titre écouté" else "Titres écoutés"
+
+        // --- Total liked ---
+        val totalLiked = db.getLikedCount()
+        val textNbLiked = view.findViewById<TextView>(R.id.textNbLiked)
+        textNbLiked.text = formatNumber(totalLiked)
+        val textSongLiked = view.findViewById<TextView>(R.id.textSongLiked)
+        textSongLiked.text = if (totalLiked < 2) "Morceau liké" else "Morceaux likés"
+
+        // --- Artist discovered ---
+        val totalAuthors = db.getDistinctArtistsCount()
+        val textNbAuthor = view.findViewById<TextView>(R.id.textNbAuthor)
+        textNbAuthor.text = formatNumber(totalAuthors)
+        val textAuthorDiscover = view.findViewById<TextView>(R.id.textAuthorDiscover)
+        textAuthorDiscover.text = if (totalAuthors < 2) "Artiste découvert" else "Artistes découverts"
+
+        // --- Top artiste ---
+        val textAuthorName = view.findViewById<TextView>(R.id.textAuthorName)
+        textAuthorName.text = db.getTopOneArtist()
+
 
         // display recent like
         displayRecentLike()

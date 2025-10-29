@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="0dp"
+    android:layout_height="170dp"
+    android:layout_rowWeight="1"
+    android:layout_columnWeight="1"
+    android:foreground="@drawable/ripple_cover">
+
+    <ImageView
+        android:id="@+id/coverPlaylist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/happy"
+        android:scaleType="centerCrop"
+        tools:src="@mipmap/ic_launcher" />
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="@dimen/space_between_bloc"
+        android:layout_marginBottom="@dimen/space_between_bloc"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/namePlaylist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/happy"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/nbSongsPlaylist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            tools:text="N morceaux" />
+    </LinearLayout>
+</FrameLayout>

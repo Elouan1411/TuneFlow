@@ -39,6 +39,10 @@
     <string name="most_listened_artist">Artiste préféré</string>
     <string name="discovered_artists">Artistes découverts</string>
     <string name="last_liked_songs">Les derniers morceaux likés</string>
+    <string name="home">Accueil</string>
+    <string name="playlists">Playlists</string>
+    <string name="profil">Profil</string>
+    <string name="my_playlists">Mes playlists</string>
     <dimen name="little_space_between_bloc">5dp</dimen>
     <dimen name="space_between_bloc">13dp</dimen>
     <dimen name="double_space_between_bloc">26dp</dimen>

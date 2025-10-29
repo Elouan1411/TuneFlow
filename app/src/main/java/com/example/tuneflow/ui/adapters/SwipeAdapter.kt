@@ -163,10 +163,10 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
             holder.isAddedToPlaylist = !holder.isAddedToPlaylist
             if (holder.isAddedToPlaylist){
                 addToPlaylist(holder)
-                db.addSongToPlaylist(song,"playlist_temp2")
+                db.addSongToPlaylist(song,"playlist_temp3")
             }else{
                 removeFromPlaylist(holder)
-                db.removeSongFromPlaylist(song, "playlist_temp2")
+                db.removeSongFromPlaylist(song, "playlist_temp3")
             }
         }
 

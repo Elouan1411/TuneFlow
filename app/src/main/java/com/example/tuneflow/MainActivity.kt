@@ -1,6 +1,7 @@
 package com.example.tuneflow
 
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -13,6 +14,7 @@ import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.ui.DashboardFragment
 import com.example.tuneflow.ui.DiscoverFragment
 import com.example.tuneflow.ui.HomeFragment
+import com.example.tuneflow.ui.PlaylistsFragment
 import com.example.tuneflow.ui.utils.SwipeListener
 import com.example.tuneflow.ui.utils.loadFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -24,6 +26,8 @@ class MainActivity : AppCompatActivity() {
     val homeFragment = HomeFragment()
     val dashboardFragment = DashboardFragment()
     val discoverFragment = DiscoverFragment()
+
+    val playlistFragment = PlaylistsFragment()
     var moodFromDiscover: String? = null
 
 
@@ -32,10 +36,8 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // DevDatabaseUtils.deleteDatabase(this) // TODO: just for dev
 
         db = TuneFlowDatabase(this)
-        db.initializeDb()
 
 
         val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -52,6 +54,7 @@ class MainActivity : AppCompatActivity() {
             .add(R.id.fragment_container, homeFragment)
             .add(R.id.fragment_container, dashboardFragment).hide(dashboardFragment)
             .add(R.id.fragment_container, discoverFragment).hide(discoverFragment)
+            .add(R.id.fragment_container, playlistFragment).hide(playlistFragment)
             .commit()
 
         // Bottom nav actions
@@ -65,6 +68,9 @@ class MainActivity : AppCompatActivity() {
                 )
                 R.id.nav_discover -> supportFragmentManager.loadFragment(R.id.fragment_container,
                     DiscoverFragment()
+                )
+                R.id.nav_playlist -> supportFragmentManager.loadFragment(R.id.fragment_container,
+                    PlaylistsFragment()
                 )
             }
             true
@@ -128,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         val transaction = supportFragmentManager.beginTransaction()
 
         // Hide all fragments except the one to show
-        for (f in listOf(homeFragment, dashboardFragment, discoverFragment)) {
+        for (f in listOf(homeFragment, dashboardFragment, discoverFragment, playlistFragment)) {
             if (f == fragmentToShow) transaction.show(f)
             else transaction.hide(f)
         }
@@ -140,6 +146,7 @@ class MainActivity : AppCompatActivity() {
             homeFragment -> bottomNavigation.selectedItemId = R.id.nav_home
             dashboardFragment -> bottomNavigation.selectedItemId = R.id.nav_dashboard
             discoverFragment -> bottomNavigation.selectedItemId = R.id.nav_discover
+            playlistFragment -> bottomNavigation.selectedItemId = R.id.nav_playlist
         }
     }
 
