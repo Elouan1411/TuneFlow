@@ -19,6 +19,7 @@ object MusicPlayerManager {
      */
     fun playSong(url: String, id:Long) {
         stopSong()
+        isRun = true
         currentSong = id
 
         mediaPlayer = MediaPlayer().apply {

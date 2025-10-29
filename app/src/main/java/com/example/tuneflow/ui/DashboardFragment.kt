@@ -1,17 +1,32 @@
 package com.example.tuneflow.ui
 
+import android.animation.ValueAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 import com.example.tuneflow.MainActivity
 import com.example.tuneflow.R
+import com.example.tuneflow.data.Song
+import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
 import com.example.tuneflow.ui.utils.SwipeListener
+import com.example.tuneflow.ui.utils.generalTools
+import java.text.DecimalFormat
 import kotlin.collections.listOf
+import kotlin.sequences.forEach
 
 class DashboardFragment : Fragment(), SwipeListener {
     private lateinit var titleTextView: TextView
@@ -22,6 +37,10 @@ class DashboardFragment : Fragment(), SwipeListener {
     private lateinit var layoutStat4: LinearLayout
     private lateinit var layoutStat5: LinearLayout
     private lateinit var statsLayouts : List<LinearLayout>
+
+    private val db: TuneFlowDatabase
+        get() = (activity as MainActivity).db
+
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -41,7 +60,14 @@ class DashboardFragment : Fragment(), SwipeListener {
         layoutStat5 = view.findViewById(R.id.layoutStat5)
         statsLayouts = listOf(layoutStat1, layoutStat2, layoutStat3, layoutStat4, layoutStat5)
 
+        // display stats
+        view.findViewById<TextView>(R.id.textNbSongs).text = formatNumber(db.getTotalListeningCount())
+        view.findViewById<TextView>(R.id.textNbLiked).text = formatNumber(db.getLikedCount())
+        view.findViewById<TextView>(R.id.textNbAuthor).text = formatNumber(db.getDistinctArtistsCount())
+        view.findViewById<TextView>(R.id.textAuthorName).text = db.getTopOneArtist()
 
+        // display recent like
+        displayRecentLike()
     }
 
     override fun onSwipeRight() {
@@ -121,6 +147,102 @@ class DashboardFragment : Fragment(), SwipeListener {
             // Next row after 2 items
             if ((index + 1) % childrenPerRow == 0) currentRow++
         }
+    }
+
+
+    /**
+     * Formats a number string with commas as thousands separators.
+     * @param numberStr The input number as a string ("1247")
+     * @return Formatted number with commas ("1,247")
+     */
+    fun formatNumber(number: Int): String {
+        return try {
+            val formatter = DecimalFormat("#,###")
+            formatter.format(number)
+        } catch (e: NumberFormatException) {
+            number.toString() // return original if input is not a valid number
+        }
+    }
+
+    /**
+     * Displays the search results in the LinearLayout.
+     *
+     * @param results List of songs to display.
+     *
+     * For each song:
+     * - Sets the title, artist, album, and cover image.
+     * - Configures play/pause and like buttons with their behavior.
+     * - Adds a gray divider between items (except the last one).
+     */
+    private fun displaySearchResults(results: List<Song>) {
+        val container = requireView().findViewById<LinearLayout>(R.id.lastLikeContainer)
+        container.removeAllViews() // reset old results
+        results.forEachIndexed { index, song ->
+            val itemView = layoutInflater.inflate(R.layout.item_search_result, container, false)
+
+            val titleView = itemView.findViewById<TextView>(R.id.titleSearch)
+            val artistView = itemView.findViewById<TextView>(R.id.authorSearch)
+            val albumView = itemView.findViewById<TextView>(R.id.albumSearch)
+            val coverView = itemView.findViewById<ImageView>(R.id.imageCoverSearch)
+            val playButton = itemView.findViewById<ImageButton>(R.id.buttonPlay)
+            val likeButton = itemView.findViewById<ImageButton>(R.id.buttonLikeSearch)
+
+
+
+            generalTools.updateLikeIcon(song, likeButton, db, true)
+
+
+            titleView.text = song.trackName
+            artistView.text = song.artistName
+            albumView.text = song.collectionName
+
+            // load image with border radius
+            val radiusDp = 16f
+            val radiusPx = (radiusDp * requireContext().resources.displayMetrics.density).toInt()
+            Glide.with(requireContext())
+                .load(song.artworkUrl100)
+                .apply(RequestOptions().transform(RoundedCorners(radiusPx)))
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .skipMemoryCache(true)
+                .into(coverView)
+
+            // Assign listeners
+            itemView.setOnClickListener { generalTools.toggleSong(db, song, container, playButton) }
+            playButton.setOnClickListener { generalTools.toggleSong(db, song, container, playButton) }
+            likeButton.setOnClickListener { generalTools.updateLikeIcon(song, likeButton, db) }
+
+
+
+
+
+            container.addView(itemView)
+
+            // add grey line except for the last item
+            if (index < results.size - 1) {
+                val divider = View(requireContext()).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        1 // height
+                    ).apply {
+                        setMargins(0, 4, 0, 4)
+                    }
+                    setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.line))
+                }
+                container.addView(divider)
+            }
+        }
+
+
+    }
+
+    /**
+     * Displays the 10 most recently liked songs by fetching their IDs and showing the corresponding results.
+     */
+    private fun displayRecentLike(){
+        // get top 10 songId liked
+        val listSongId: List<Long> = db.getRecentLikedSongs()
+        val listSong = listSongId.mapNotNull { db.getSongFromDb(it) }.toMutableList()
+        displaySearchResults(listSong)
     }
 
 }

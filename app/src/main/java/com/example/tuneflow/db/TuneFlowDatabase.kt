@@ -475,18 +475,61 @@ class TuneFlowDatabase(
         val songIds = mutableListOf<Long>()
         val cursor = db.rawQuery(
             """
-            SELECT $SONG_LISTENING_ID 
+            SELECT $SONG_ID 
             FROM $TABLE_SONGS 
             WHERE $SONG_LIKED = 1
-            ORDER BY $SONG_LISTENING_ID DESC
+            ORDER BY $SONG_ID DESC
             LIMIT $limit
             """.trimIndent(), null
         )
         while (cursor.moveToNext()) {
-            songIds.add(cursor.getLong(cursor.getColumnIndexOrThrow(SONG_LISTENING_ID)))
+            songIds.add(cursor.getLong(cursor.getColumnIndexOrThrow(SONG_ID)))
         }
         cursor.close()
         return songIds
+    }
+
+    /**
+     * Get a Song object from the database based on its ID.
+     *
+     * @param songId The ID of the song in the database.
+     * @return A Song object if found, null otherwise.
+     */
+    fun getSongFromDb(songId: Long): Song? {
+        val db = readableDatabase
+
+        val query = """
+        SELECT $SONG_LISTENING_ID, $SONG_TITLE, $SONG_AUTHOR, $SONG_ALBUM, 
+               $SONG_PREVIEW_URL, $SONG_ALBUM_COVER_URL, $SONG_RELEASE_YEAR, $SONG_STYLE, $SONG_APPLE_MUSIC_URL
+        FROM $TABLE_SONGS
+        WHERE $SONG_ID = ?
+        LIMIT 1
+    """.trimIndent()
+
+        val cursor = db.rawQuery(query, arrayOf(songId.toString()))
+        val song: Song? = if (cursor.moveToFirst()) {
+            Song(
+                artistId = 0L, // not in DB
+                collectionId = 0L, // not in DB
+                trackId = cursor.getLong(cursor.getColumnIndexOrThrow(SONG_LISTENING_ID)),
+                artistName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_AUTHOR)) ?: "",
+                collectionName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM)) ?: "",
+                trackName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_TITLE)) ?: "",
+                artistViewUrl = "", // not in DB
+                collectionViewUrl = "", // not in DB
+                trackViewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_APPLE_MUSIC_URL)) ?: "",
+                previewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_PREVIEW_URL)) ?: "",
+                artworkUrl60 = "", // not in DB
+                artworkUrl100 = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM_COVER_URL)) ?: "",
+                releaseDate = cursor.getString(cursor.getColumnIndexOrThrow(SONG_RELEASE_YEAR)) ?: "",
+                trackTimeMillis = 0L,// not in DB
+                country = "", // not in DB
+                primaryGenreName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_STYLE)) ?: ""
+            )
+        } else null
+
+        cursor.close()
+        return song
     }
 
 

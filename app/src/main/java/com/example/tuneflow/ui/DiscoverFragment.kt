@@ -35,6 +35,7 @@ import com.example.tuneflow.data.Song
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.network.ApiClient
 import com.example.tuneflow.player.MusicPlayerManager
+import com.example.tuneflow.ui.utils.generalTools
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -334,11 +335,11 @@ class DiscoverFragment : Fragment(), SwipeListener {
      *
      * Also handles showing the "no results" text and animating the scroll view expansion/collapse.
      */
-
     private fun displaySearchResults(results: List<Song>, isEmpty: Boolean) {
-        val container = view?.findViewById<LinearLayout>(R.id.searchResultsContainer)
+        val container = requireView().findViewById<LinearLayout>(R.id.searchResultsContainer)
         container?.removeAllViews() // reset old results
 
+        revaluationArrowBottomSearch() // init -> open
         results.forEachIndexed { index, song ->
             val itemView = layoutInflater.inflate(R.layout.item_search_result, container, false)
 
@@ -351,36 +352,10 @@ class DiscoverFragment : Fragment(), SwipeListener {
 
 
 
-            updateLikeIcon(song, likeButton, true)
+            generalTools.updateLikeIcon(song, likeButton, db, true)
 
 
-            fun toggleSong() {
-                db.addListenedSong(song)
-                val currentSongId = MusicPlayerManager.getCurrentSong()
-                val isPlaying = MusicPlayerManager.getIsRun()
 
-                // Reset buttons of other songs
-                container?.children?.forEach { child ->
-                    val btn = child.findViewById<ImageButton>(R.id.buttonPlay)
-                    if (btn != playButton) btn?.setImageResource(R.drawable.ic_play)
-                }
-
-                if (currentSongId == song.trackId) {
-                    if (isPlaying) {
-                        // Same song → pause
-                        MusicPlayerManager.pauseSong()
-                        playButton.setImageResource(R.drawable.ic_play)
-                    } else {
-                        // Same song → repeat
-                        MusicPlayerManager.resumeSong()
-                        playButton.setImageResource(R.drawable.ic_pause)
-                    }
-                } else {
-                    // New song → play
-                    MusicPlayerManager.playSong(song.previewUrl, song.trackId)
-                    playButton.setImageResource(R.drawable.ic_pause)
-                }
-            }
 
 
             titleView.text = song.trackName
@@ -398,37 +373,14 @@ class DiscoverFragment : Fragment(), SwipeListener {
                 .into(coverView)
 
             // Assign listeners
-            itemView.setOnClickListener { toggleSong() }
-            playButton.setOnClickListener { toggleSong() }
-            likeButton.setOnClickListener { updateLikeIcon(song, likeButton) }
+            itemView.setOnClickListener { generalTools.toggleSong(db,song, container, playButton) }
+            playButton.setOnClickListener { generalTools.toggleSong(db,song, container, playButton) }
+            likeButton.setOnClickListener { generalTools.updateLikeIcon(song, likeButton, db) }
             closeButton.setOnClickListener { searchEditText.text.clear() }
 
+
             arrowBottomSearch.setOnClickListener {
-                // change size
-                val heightDp = if (!scrollViewOpen) 400 else 200
-                val newHeightPx = (heightDp * resources.displayMetrics.density).toInt()
-
-                // get current height
-                val startHeight = layoutResultWithArrow.height
-
-                // create animation
-                val animator = ValueAnimator.ofInt(startHeight, newHeightPx)
-                animator.duration = 300
-
-
-                animator.addUpdateListener { animation ->
-                    val value = animation.animatedValue as Int
-                    val params = layoutResultWithArrow.layoutParams
-                    params.height = value
-                    layoutResultWithArrow.layoutParams = params
-                }
-
-                animator.start()
-
-                // change direction
-                arrowBottomSearch.animate().rotation(if (!scrollViewOpen) 180f else 0f)
-                    .setDuration(300).start()
-
+                revaluationArrowBottomSearch()
                 scrollViewOpen = !scrollViewOpen
             }
 
@@ -465,30 +417,7 @@ class DiscoverFragment : Fragment(), SwipeListener {
     }
 
 
-    /**
-     * Updates a song's like icon.
-     * @param songId
-     * @param icon the ImageButton button to update
-     * @param init if true, just initialize the color according to the DB, otherwise toggle
-     */
-    private fun updateLikeIcon(song: Song, icon: ImageButton, init: Boolean = false) {
-        var liked = db.isSongLiked(song.trackId)
 
-        if (!init) {
-            // add in db
-            db.addListenedSong(song)
-            // toggle if not just for initialization
-            db.addLikedSong(song.trackId, !liked)
-            liked = !liked
-        }
-
-        // met la couleur correcte
-        val colorRes = if (liked) R.color.green else R.color.icon
-        ImageViewCompat.setImageTintList(
-            icon,
-            ColorStateList.valueOf(ContextCompat.getColor(icon.context, colorRes))
-        )
-    }
 
 
     /**
@@ -515,6 +444,35 @@ class DiscoverFragment : Fragment(), SwipeListener {
         loaderAnimator?.cancel()
         musicLoader.visibility = View.GONE
         closeButton.visibility = View.VISIBLE
+
+    }
+
+    private fun revaluationArrowBottomSearch(){
+        // change size
+        val heightDp = if (!scrollViewOpen) 400 else 150
+        val newHeightPx = (heightDp * resources.displayMetrics.density).toInt()
+
+        // get current height
+        val startHeight = layoutResultWithArrow.height
+
+        // create animation
+        val animator = ValueAnimator.ofInt(startHeight, newHeightPx)
+        animator.duration = 300
+
+
+        animator.addUpdateListener { animation ->
+            val value = animation.animatedValue as Int
+            val params = layoutResultWithArrow.layoutParams
+            params.height = value
+            layoutResultWithArrow.layoutParams = params
+        }
+
+        animator.start()
+
+        // change direction
+        arrowBottomSearch.animate().rotation(if (!scrollViewOpen) 180f else 0f)
+            .setDuration(300).start()
+
 
     }
 

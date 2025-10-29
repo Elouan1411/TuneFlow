@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/scrollProfil"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_home_gradient"
     android:fillViewport="true">
@@ -68,12 +68,13 @@
                     android:src="@drawable/ic_apple_music" />
 
                 <TextView
+                    android:id="@+id/textNbSongs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="1dp"
-                    tools:text="1,247"
                     android:textColor="@color/home_title"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:text="1,247" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -101,12 +102,13 @@
                     android:src="@drawable/ic_heart_white" />
 
                 <TextView
+                    android:id="@+id/textNbLiked"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="1dp"
-                    tools:text="342"
                     android:textColor="@color/home_title"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:text="342" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -134,12 +136,13 @@
                     android:src="@drawable/ic_increase" />
 
                 <TextView
+                    android:id="@+id/textNbAuthor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="1dp"
-                    tools:text="156"
                     android:textColor="@color/home_title"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:text="156" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -167,12 +170,13 @@
                     android:src="@drawable/ic_artist" />
 
                 <TextView
+                    android:id="@+id/textAuthorName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="1dp"
-                    tools:text="Biga Ranx"
                     android:textColor="@color/home_title"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:text="Biga Ranx" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -183,7 +187,7 @@
             <LinearLayout
                 android:id="@+id/layoutStat5"
                 android:layout_width="0dp"
-                android:layout_height="250dp"
+                android:layout_height="350dp"
                 android:layout_rowWeight="1"
                 android:layout_columnSpan="2"
                 android:layout_columnWeight="2"
@@ -194,24 +198,22 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Les derniers morceaux likés"/>
+                    android:text="@string/last_liked_songs" />
 
                 <com.example.tuneflow.InnerScrollView
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-
-                    android:visibility="visible"
-                    android:fillViewport="true">
+                    android:fillViewport="true"
+                    android:visibility="visible">
 
                     <LinearLayout
-                        android:id="@+id/searchResultsContainer"
+                        android:id="@+id/lastLikeContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:paddingTop="8dp"/>
+                        android:paddingTop="8dp" />
                 </com.example.tuneflow.InnerScrollView>
-
 
 
             </LinearLayout>
