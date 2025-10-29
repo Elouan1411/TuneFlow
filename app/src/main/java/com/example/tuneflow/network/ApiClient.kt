@@ -15,4 +15,18 @@ object ApiClient {
                 MusicAPI::class.java
             )
     }
+
+    /**
+     * Removing characters not accepted by the API from the URL
+     * @param term the words that will be transmitted to the API in the URL
+     */
+    fun cleanUrlForApi(term: String): String {
+        // change accented characters to unaccented characters
+        val normalized = java.text.Normalizer.normalize(term, java.text.Normalizer.Form.NFD)
+            .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+        // replace space with +
+        val withPluses = normalized.replace(" ", "+")
+        // Removes all unauthorized characters
+        return withPluses.replace(Regex("[^a-zA-Z0-9.+\\-_*]"), "")
+    }
 }

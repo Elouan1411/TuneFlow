@@ -10,6 +10,13 @@ object MusicPlayerManager {
 
     private var currentSong: Long = 0
 
+    /**
+     * Plays the song from the given URL and loops it.
+     * Stops any current playback before starting the new one.
+     *
+     * @param url Song preview URL.
+     * @param id Song ID.
+     */
     fun playSong(url: String, id:Long) {
         stopSong()
         currentSong = id
@@ -27,6 +34,10 @@ object MusicPlayerManager {
             }
         }
     }
+
+    /**
+     * Stops and releases the current song if one is playing.
+     */
     fun stopSong() {
         mediaPlayer?.let { mp ->
             if (mp.isPlaying) {
@@ -37,6 +48,10 @@ object MusicPlayerManager {
         mediaPlayer = null
     }
 
+    /**
+     * Pauses the current song.
+     * If called when closing the app, keeps the state active.
+     */
     fun pauseSong(onStop: Boolean = false) {
         mediaPlayer?.let {
             if (it.isPlaying){
@@ -50,6 +65,9 @@ object MusicPlayerManager {
         }
     }
 
+    /**
+     * Resumes the song if it was paused.
+     */
     fun resumeSong(){
         mediaPlayer?.let {
             if (!it.isPlaying){
@@ -59,15 +77,24 @@ object MusicPlayerManager {
         }
     }
 
-    fun getIsRun():Boolean{
+    /**
+     * @return true if a song is currently playing.
+     */
+    fun getIsRun(): Boolean {
         return isRun
     }
 
-    fun setIsRun(musicRun: Boolean){
+    /**
+     * Updates the current play state.
+     */
+    fun setIsRun(musicRun: Boolean) {
         isRun = musicRun
     }
 
-    fun getCurrentSong():Long{
+    /**
+     * @return the ID of the currently playing song.
+     */
+    fun getCurrentSong(): Long {
         return currentSong
     }
 

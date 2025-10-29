@@ -31,6 +31,9 @@ class WaveCircleView @JvmOverloads constructor(
         startWaveAnimation()
     }
 
+    /**
+     * Circular view with a continuously animated "music level" overlay.
+     */
     private fun startWaveAnimation() {
         val random = Random(System.currentTimeMillis())
 

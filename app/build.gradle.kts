@@ -51,4 +51,6 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.glide)
+    implementation("androidx.fragment:fragment-ktx:1.8.9")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
 }
