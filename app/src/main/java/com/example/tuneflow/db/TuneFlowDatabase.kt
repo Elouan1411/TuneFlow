@@ -19,8 +19,7 @@ class TuneFlowDatabase(
         // --- Table USER ---
         val createUserTable = """
             CREATE TABLE $TABLE_USER(
-                $USER_ID INTEGER PRIMARY KEY,
-                $USER_TOTAL_LISTENING_TIME LONG DEFAULT 0
+                $USER_ID INTEGER PRIMARY KEY
             );
         """.trimIndent()
         db.execSQL(createUserTable)
@@ -29,13 +28,14 @@ class TuneFlowDatabase(
         val createSongsTable = """
             CREATE TABLE $TABLE_SONGS(
                 $SONG_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $SONG_LISTENING_ID INTEGER NOT NULL,
+                $SONG_LIKED INTEGER DEFAULT 0,                
                 $SONG_TITLE TEXT NOT NULL,
                 $SONG_AUTHOR TEXT,
                 $SONG_ALBUM TEXT,
                 $SONG_PREVIEW_URL TEXT,
                 $SONG_ALBUM_COVER_URL TEXT,
                 $SONG_RELEASE_YEAR INTEGER,
-                $SONG_TRACK_TIME LONG,
                 $SONG_STYLE TEXT,
                 $SONG_APPLE_MUSIC_URL TEXT
             );
@@ -63,29 +63,6 @@ class TuneFlowDatabase(
         """.trimIndent()
         db.execSQL(createPlaylistSongsTable)
 
-        // --- Table SEARCH HISTORY ---
-        val createSearchHistoryTable = """
-            CREATE TABLE $TABLE_SEARCH_HISTORY(
-                $SEARCH_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $SEARCH_QUERY TEXT NOT NULL,
-                $SEARCH_TIMESTAMP LONG DEFAULT (strftime('%s','now') * 1000)
-            );
-        """.trimIndent()
-        db.execSQL(createSearchHistoryTable)
-
-        // --- Table LISTENING DATA ---
-        val createTableListeningData = """
-            CREATE TABLE $TABLE_LISTENING_DATA(
-                $LISTENING_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $LISTENING_SONG_ID INTEGER NOT NULL,
-                $LISTENING_LIKED INTEGER DEFAULT 0,
-                $LISTENING_STYLE TEXT,
-                $LISTENING_AUTHOR TEXT,
-                $LISTENING_RELEASE_YEAR INTEGER
-            );
-        """.trimIndent()
-        db.execSQL(createTableListeningData)
-
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -94,8 +71,6 @@ class TuneFlowDatabase(
         db.execSQL("DROP TABLE IF EXISTS $TABLE_SONGS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_PLAYLIST_SONGS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_PLAYLISTS")
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_SEARCH_HISTORY")
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_LISTENING_DATA")
 
         onCreate(db)
     }
@@ -138,8 +113,8 @@ class TuneFlowDatabase(
         // check if already exist (when swipe the other way)
         val existsQuery = """
         SELECT 1
-        FROM $TABLE_LISTENING_DATA
-        WHERE $LISTENING_SONG_ID = ?
+        FROM $TABLE_SONGS
+        WHERE $SONG_LISTENING_ID = ?
         LIMIT 1
     """.trimIndent()
 
@@ -149,12 +124,18 @@ class TuneFlowDatabase(
 
         if (!alreadyExists) {
             val values = ContentValues().apply {
-                put(LISTENING_SONG_ID, song.trackId)
-                put(LISTENING_STYLE, song.primaryGenreName)
-                put(LISTENING_AUTHOR, song.artistName)
-                put(LISTENING_RELEASE_YEAR, song.releaseDate.substringBefore("-"))
+                put(SONG_LISTENING_ID, song.trackId)
+                put(SONG_STYLE, song.primaryGenreName)
+                put(SONG_AUTHOR, song.artistName)
+                put(SONG_RELEASE_YEAR, song.releaseDate.substringBefore("-"))
+                put(SONG_TITLE, song.trackName)
+                put(SONG_ALBUM, song.collectionName)
+                put(SONG_PREVIEW_URL, song.previewUrl)
+                put(SONG_ALBUM_COVER_URL, song.artworkUrl100)
+                put(SONG_APPLE_MUSIC_URL, song.trackViewUrl)
+
             }
-            db.insert(TABLE_LISTENING_DATA, null, values)
+            db.insert(TABLE_SONGS, null, values)
         }
     }
 
@@ -166,13 +147,13 @@ class TuneFlowDatabase(
     fun addLikedSong(songId: Long, isLiked: Boolean) {
         val db = writableDatabase
         val values = ContentValues().apply {
-            put(LISTENING_LIKED, if (isLiked) 1 else 0)
+            put(SONG_LIKED, if (isLiked) 1 else 0)
         }
 
         db.update(
-            TABLE_LISTENING_DATA,
+            TABLE_SONGS,
             values,
-            "$LISTENING_SONG_ID = ?",
+            "$SONG_LISTENING_ID = ?",
             arrayOf(songId.toString())
         )
     }
@@ -252,7 +233,6 @@ class TuneFlowDatabase(
 
     /**
      * Remove a song from a playlist.
-     * Also removes the song from songs table if it is not in another playlist
      * Delete the playlist if it is empty
      * @param song the song to remove
      * @param playlistName the name of the playlist
@@ -261,7 +241,7 @@ class TuneFlowDatabase(
         val db = writableDatabase
         db.beginTransaction()
         try {
-            // gte playlist id
+            // get playlist id
             val cursorPlaylist = db.rawQuery(
                 "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
                 arrayOf(playlistName)
@@ -281,22 +261,6 @@ class TuneFlowDatabase(
                 "$PS_PLAYLIST_ID = ? AND $PS_SONG_ID = ?",
                 arrayOf(playlistId.toString(), song.trackId.toString())
             )
-
-            // Remove song from songs if not in any playlist
-            val cursorSongInPlaylists = db.rawQuery(
-                "SELECT 1 FROM $TABLE_PLAYLIST_SONGS WHERE $PS_SONG_ID = ? LIMIT 1",
-                arrayOf(song.trackId.toString())
-            )
-            val songInOtherPlaylists = cursorSongInPlaylists.moveToFirst()
-            cursorSongInPlaylists.close()
-
-            if (!songInOtherPlaylists) {
-                db.delete(
-                    TABLE_SONGS,
-                    "$SONG_ID = ?",
-                    arrayOf(song.trackId.toString())
-                )
-            }
 
             // remove playlist if empty
             val cursorPlaylistEmpty = db.rawQuery(
@@ -338,9 +302,9 @@ class TuneFlowDatabase(
         // Build the query dynamically based on the limit
         val limitClause = if (limit > 0) "LIMIT $limit" else ""
         val query = """
-        SELECT $column, COUNT(DISTINCT $LISTENING_SONG_ID) AS count
-        FROM $TABLE_LISTENING_DATA
-        WHERE $LISTENING_LIKED = 1 AND $column IS NOT NULL
+        SELECT $column, COUNT(DISTINCT $SONG_LISTENING_ID) AS count
+        FROM $TABLE_SONGS
+        WHERE $SONG_LIKED = 1 AND $column IS NOT NULL
         GROUP BY $column
         ORDER BY count DESC
         $limitClause
@@ -368,10 +332,10 @@ class TuneFlowDatabase(
         val topYears = mutableListOf<Int>()
 
         val query = """
-            SELECT (CAST($LISTENING_RELEASE_YEAR AS INTEGER) / 5) * 5 AS yearGroup,
-                   COUNT(DISTINCT $LISTENING_SONG_ID) AS count
-            FROM $TABLE_LISTENING_DATA
-            WHERE $LISTENING_LIKED = 1 AND $LISTENING_RELEASE_YEAR IS NOT NULL
+            SELECT (CAST($SONG_RELEASE_YEAR AS INTEGER) / 5) * 5 AS yearGroup,
+                   COUNT(DISTINCT $SONG_LISTENING_ID) AS count
+            FROM $TABLE_SONGS
+            WHERE $SONG_LIKED = 1 AND $SONG_RELEASE_YEAR IS NOT NULL
             GROUP BY yearGroup
             ORDER BY count DESC
             LIMIT $limit
@@ -395,7 +359,7 @@ class TuneFlowDatabase(
      * @return A list of the user's top `limit` favorite styles.
      */
     fun getTopStyles(limit: Int = 5): List<String> {
-        return getTopValues(LISTENING_STYLE, limit)
+        return getTopValues(SONG_STYLE, limit)
     }
 
     /**
@@ -407,7 +371,7 @@ class TuneFlowDatabase(
      * @return A list of the user's top `limit` favorite artists.
      */
     fun getTopAuthors(limit: Int = 5): List<String> {
-        return getTopValues(LISTENING_AUTHOR, limit)
+        return getTopValues(SONG_AUTHOR, limit)
     }
 
     /**
@@ -418,8 +382,8 @@ class TuneFlowDatabase(
         val db = readableDatabase
         val query = """
             SELECT *
-            FROM $TABLE_LISTENING_DATA
-            WHERE $LISTENING_SONG_ID = ?
+            FROM $TABLE_SONGS
+            WHERE $SONG_LISTENING_ID = ?
         """.trimIndent()
 
         val cursor = db.rawQuery(query, arrayOf(songId.toString()))
@@ -436,8 +400,8 @@ class TuneFlowDatabase(
         val db = readableDatabase
         val query = """
             SELECT COUNT(*) as nbLike
-            FROM $TABLE_LISTENING_DATA
-            WHERE $LISTENING_LIKED = 1
+            FROM $TABLE_SONGS
+            WHERE $SONG_LIKED = 1
         """.trimIndent()
 
         val cursor = db.rawQuery(query, null)
@@ -456,15 +420,73 @@ class TuneFlowDatabase(
     fun isSongLiked(songId: Long): Boolean {
         val db = readableDatabase
         val cursor = db.query(
-            TABLE_LISTENING_DATA,
-            arrayOf(LISTENING_LIKED),
-            "$LISTENING_SONG_ID = ? AND $LISTENING_LIKED = 1",
+            TABLE_SONGS,
+            arrayOf(SONG_LIKED),
+            "$SONG_LISTENING_ID = ? AND $SONG_LIKED = 1",
             arrayOf(songId.toString()),
             null, null, null
         )
         val liked = cursor.count > 0
         cursor.close()
         return liked
+    }
+
+    /**
+     * Counts all rows in listening_data table
+     * @return total number of entries
+     */
+    fun getTotalListeningCount(): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) AS total FROM $TABLE_SONGS", null)
+        val count = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow("total")) else 0
+        cursor.close()
+        return count
+    }
+
+    /**
+     * Counts the number of distinct artists in listening_data
+     * @return number of unique artists
+     */
+    fun getDistinctArtistsCount(): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT COUNT(DISTINCT $SONG_AUTHOR) AS artistCount FROM $TABLE_SONGS",
+            null
+        )
+        val count = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow("artistCount")) else 0
+        cursor.close()
+        return count
+    }
+
+    /**
+     * Returns the artist who appears most in listening_data
+     * @return top artist or null if no data
+     */
+    fun getTopOneArtist(): String {
+        return getTopAuthors(1)[0]
+    }
+
+    /**
+     * Returns the 10 most recently liked songs (highest ID first)
+     * @return list of song IDs
+     */
+    fun getRecentLikedSongs(limit: Int = 10): List<Long> {
+        val db = readableDatabase
+        val songIds = mutableListOf<Long>()
+        val cursor = db.rawQuery(
+            """
+            SELECT $SONG_LISTENING_ID 
+            FROM $TABLE_SONGS 
+            WHERE $SONG_LIKED = 1
+            ORDER BY $SONG_LISTENING_ID DESC
+            LIMIT $limit
+            """.trimIndent(), null
+        )
+        while (cursor.moveToNext()) {
+            songIds.add(cursor.getLong(cursor.getColumnIndexOrThrow(SONG_LISTENING_ID)))
+        }
+        cursor.close()
+        return songIds
     }
 
 
@@ -479,8 +501,6 @@ class TuneFlowDatabase(
         const val TABLE_SONGS = "songs"
         const val TABLE_PLAYLISTS = "playlists"
         const val TABLE_PLAYLIST_SONGS = "playlist_songs"
-        const val TABLE_SEARCH_HISTORY = "search_history"
-        const val TABLE_LISTENING_DATA = "listening_data"
 
         // --- User Fields ---
         const val USER_ID = "id"
@@ -488,6 +508,7 @@ class TuneFlowDatabase(
 
         // --- Song Fields ---
         const val SONG_ID = "id"
+        const val SONG_LISTENING_ID = "songId"
         const val SONG_TITLE = "title"
         const val SONG_AUTHOR = "author"
         const val SONG_ALBUM = "album"
@@ -497,6 +518,7 @@ class TuneFlowDatabase(
         const val SONG_TRACK_TIME = "trackTimeMillis"
         const val SONG_STYLE = "style"
         const val SONG_APPLE_MUSIC_URL = "appleMusicUrl"
+        const val SONG_LIKED = "liked"
 
         // --- Playlist Fields ---
         const val PLAYLIST_ID = "id"
@@ -506,18 +528,5 @@ class TuneFlowDatabase(
         const val PS_ID = "id"
         const val PS_PLAYLIST_ID = "playlistId"
         const val PS_SONG_ID = "songId"
-
-        // --- Search History Fields ---
-        const val SEARCH_ID = "id"
-        const val SEARCH_QUERY = "searchQuery"
-        const val SEARCH_TIMESTAMP = "timestamp"
-
-        // --- Listening Data Fields ---
-        const val LISTENING_ID = "id"
-        const val LISTENING_SONG_ID = "songId"
-        const val LISTENING_LIKED = "liked"
-        const val LISTENING_STYLE = "style"
-        const val LISTENING_AUTHOR = "author"
-        const val LISTENING_RELEASE_YEAR = "releaseYear"
     }
 }
