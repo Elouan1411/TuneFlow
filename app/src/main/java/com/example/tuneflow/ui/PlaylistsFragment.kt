@@ -9,10 +9,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import android.widget.GridLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
@@ -42,70 +40,13 @@ class PlaylistsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.e("myDebug", "onViewCreated")
 
-        val playlists = db.getPlaylistsInfo() // get playlists
-        var word = if (playlists.size <= 1) "playlist" else "playlists"
-        view.findViewById<TextView>(R.id.subtitleFragmentPlaylist).text = "${playlists.size} $word"
-
-        val gridLayout = view.findViewById<GridLayout>(R.id.gridLayoutPlaylist)
-        gridLayout.removeAllViews()
-
-
-        val columnCount = 2
-        gridLayout.columnCount = columnCount
-
-        playlists.forEachIndexed { index, playlist ->
-            val itemView = layoutInflater.inflate(R.layout.item_playlist, gridLayout, false)
-
-            // get view of each item
-            val coverImage = itemView.findViewById<ImageView>(R.id.coverPlaylist)
-            val nameText = itemView.findViewById<TextView>(R.id.namePlaylist)
-            val nbSongsText = itemView.findViewById<TextView>(R.id.nbSongsPlaylist)
-
-            // fill data
-            nameText.text = playlist.name
-            word = if (playlist.songCount <= 1) "morceau" else "morceaux"
-            nbSongsText.text = "${playlist.songCount} $word"
-
-
-
-            displayImage(playlist, coverImage, view)
-
-
-            // configuring LayoutParams for GridLayout
-            val params = GridLayout.LayoutParams().apply {
-                width = 0
-                height = GridLayout.LayoutParams.WRAP_CONTENT
-                columnSpec = GridLayout.spec(index % columnCount, 1f)
-                rowSpec = GridLayout.spec(index / columnCount)
-                setMargins(8, 8, 8, 8)
-            }
-            itemView.layoutParams = params
-
-            // add item in the grid
-            gridLayout.addView(itemView)
-        }
-
-        // Add an "empty element" if the number of playlists is odd.
-        if (playlists.size == 1) {
-            val emptyView = View(context)
-            val params = GridLayout.LayoutParams().apply {
-                width = 0
-                height = GridLayout.LayoutParams.WRAP_CONTENT
-                columnSpec = GridLayout.spec(1, 1f) // 2nd column
-                rowSpec = GridLayout.spec(0)        // 1st row
-            }
-            emptyView.layoutParams = params
-            gridLayout.addView(emptyView)
-        }
-
-        // adjust number of row
-        val rowCount = (playlists.size + columnCount - 1) / columnCount
-        gridLayout.rowCount = rowCount
+        displayPlaylist(view)
 
         // create playlist
         view.findViewById<RelativeLayout>(R.id.buttonWantCreatePlaylist).setOnClickListener {
             PopupNewPlaylistFragment { playlistName ->
                 db.createPlaylist(playlistName)
+                displayPlaylist(view) // refresh
             }.show(parentFragmentManager, "popup_new_playlist")
 
         }
@@ -133,13 +74,19 @@ class PlaylistsFragment : Fragment() {
         val radiusPx = radiusDp * view.context.resources.displayMetrics.density
 
         // laod image with border radius
+        val coverUrl = playlist.lastSongCoverUrl.takeIf { it.isNotEmpty() }
+            ?.replace("100x100", "600x600")
+            ?: R.drawable.ic_cover
+
+
         Glide.with(this)
-            .load(playlist.lastSongCoverUrl.replace("100x100", "600x600"))
+            .load(coverUrl)
             .placeholder(ColorDrawable(Color.TRANSPARENT))
             .apply(RequestOptions().transform(RoundedCorners(radiusPx.toInt())))
             .transition(DrawableTransitionOptions.withCrossFade())
             .skipMemoryCache(true)
             .into(coverImage)
+
 
         // gradient
         val gradient = GradientDrawable(
@@ -152,6 +99,65 @@ class PlaylistsFragment : Fragment() {
         // apply gradient
         coverImage.foreground = gradient
     }
+
+    /**
+     * Displays the different playlists in a grid format
+     * @param view View
+     */
+    private fun displayPlaylist(view: View){
+        val playlists = db.getPlaylistsInfo()
+        var word = if (playlists.size <= 1) "playlist" else "playlists"
+        view.findViewById<TextView>(R.id.subtitleFragmentPlaylist).text = "${playlists.size} $word"
+
+        val gridLayout = view.findViewById<GridLayout>(R.id.gridLayoutPlaylist)
+        gridLayout.removeAllViews()
+
+        val columnCount = 2
+        val rowCount = (playlists.size + columnCount - 1) / columnCount
+        gridLayout.columnCount = columnCount
+        gridLayout.rowCount = rowCount
+
+        playlists.forEachIndexed { index, playlist ->
+            val itemView = layoutInflater.inflate(R.layout.item_playlist, gridLayout, false)
+
+            // Views
+            val coverImage = itemView.findViewById<ImageView>(R.id.coverPlaylist)
+            val nameText = itemView.findViewById<TextView>(R.id.namePlaylist)
+            val nbSongsText = itemView.findViewById<TextView>(R.id.nbSongsPlaylist)
+
+            nameText.text = playlist.name
+            word = if (playlist.songCount <= 1) "morceau" else "morceaux"
+            nbSongsText.text = "${playlist.songCount} $word"
+
+            displayImage(playlist, coverImage, view)
+
+            // LayoutParams
+            val params = GridLayout.LayoutParams().apply {
+                width = 0
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(index % columnCount, 1f)
+                rowSpec = GridLayout.spec(index / columnCount)
+                setMargins(8, 8, 8, 8)
+            }
+            itemView.layoutParams = params
+
+            gridLayout.addView(itemView)
+        }
+
+        // Add an "empty element" if the number of playlists is odd.
+        if (playlists.size % 2 != 0) {
+            val emptyView = View(context)
+            val params = GridLayout.LayoutParams().apply {
+                width = 0
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(1, 1f)
+                rowSpec = GridLayout.spec(rowCount - 1)
+            }
+            emptyView.layoutParams = params
+            gridLayout.addView(emptyView)
+        }
+    }
+
 
 
 }

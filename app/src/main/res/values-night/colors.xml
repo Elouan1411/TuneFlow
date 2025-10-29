@@ -4,6 +4,7 @@
     <color name="bg_text_rounded">#E61F1F21</color>
     <color name="bg_home_gradient_start">#000000</color>
     <color name="bg_home_gradient_center">#5D7E7E7E</color>
+    <color name="bg_home_gradient_center_no_transparent">#2A2A2A</color>
     <color name="bg_home_gradient_end">#000000</color>
     <color name="overlay_gradient_start">#00000000</color>
     <color name="overlay_gradient_center">#9E000000</color>

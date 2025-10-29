@@ -103,7 +103,7 @@ class HomeFragment : Fragment() {
 
         displayLoader(view)
 
-        val adapter = SwipeAdapter(mutableListOf(), db, this)
+        val adapter = SwipeAdapter(mutableListOf(), db, this, parentFragmentManager)
         viewPager.adapter = adapter
 
         val activity = requireActivity() as MainActivity

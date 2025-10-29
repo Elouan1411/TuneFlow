@@ -6,6 +6,7 @@
     <color name="bg_text_rounded">#FFFFFF</color>
     <color name="bg_home_gradient_start">#FFF1F2</color>
     <color name="bg_home_gradient_center">#FFF7ED</color>
+    <color name="bg_home_gradient_center_no_transparent">#FFF7ED</color>
     <color name="bg_home_gradient_end">#FDF2F8</color>
     <color name="overlay_gradient_start">#00FFFFFF</color>
     <color name="overlay_gradient_center">#29FFFFFF</color>
@@ -36,5 +37,6 @@
     <color name="bg_gradient_green_start">#34B630</color>
     <color name="bg_gradient_green_end">#4C926F</color>
     <color name="grey">#A8A8A8</color>
+    <color name="bg_circle_grey">#48DBE1E3</color>
 
 </resources>

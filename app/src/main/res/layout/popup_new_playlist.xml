@@ -93,7 +93,7 @@
                 android:foreground="@drawable/ripple_button"
                 android:background="@drawable/bg_button_outline"
                 android:text="@string/cancel"
-                android:textColor="@color/black" />
+                android:textColor="@color/home_title" />
 
             <LinearLayout
                 android:id="@+id/btnCreate"

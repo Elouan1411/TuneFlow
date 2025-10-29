@@ -116,6 +116,7 @@
                 android:id="@+id/vinyl"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:foreground="@drawable/ripple_circle"
                 app:layout_constraintBaseline_toBaselineOf="@id/textTitle"
                 app:layout_constraintStart_toEndOf="@id/textTitle"
                 app:layout_constraintTop_toTopOf="@id/textTitle">
@@ -144,6 +145,7 @@
             android:id="@+id/textAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:foreground="@drawable/ripple_cover"
             android:layout_below="@id/divTitle"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/space_between_bloc"

@@ -18,7 +18,7 @@
         tools:src="@mipmap/ic_launcher"
         android:contentDescription="@string/covert_art" />
 
-    <!-- Texte titre + artiste + album -->
+    <!-- title artist album -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
             android:contentDescription="@string/play_pause"/>
 
         <ImageButton
-            android:id="@+id/buttonAdd"
+            android:id="@+id/buttonMore"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:src="@drawable/ic_more"

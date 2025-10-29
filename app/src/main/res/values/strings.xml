@@ -20,7 +20,7 @@
     <string name="leave_mood_sport">Quitter le mood Sport</string>
     <string name="left_arrow">flèche gauche</string>
     <string name="mute_icon">icon muet</string>
-    <string name="add_to_playlist">Ajouter à la playlist</string>
+    <string name="add_to_playlist">Ajouter à une playlist</string>
     <string name="play_pause">Play Pause</string>
     <string name="like">Like</string>
     <string name="no_result">Aucun résultat trouvé</string>
@@ -32,7 +32,7 @@
     <string name="error_occured">Oups ! Une erreur est survenue.</string>
     <string name="retry">Réessayer</string>
     <string name="my_stats">Mes statistiques</string>
-    <string name="musical_activity">Votre activité musicale</string>
+    <string name="musical_activity">Mon activité musicale</string>
     <string name="song_listened">Titres écoutés</string>
     <string name="icon_music">logo musique</string>
     <string name="liked_tracks">Morceaux likés</string>
@@ -49,6 +49,9 @@
     <string name="cancel">Annuler</string>
     <string name="create">Créer</string>
     <string name="close">fermer</string>
+    <string name="create_new_playlist">Créer une nouvelle playlist</string>
+    <string name="add">ajouter</string>
+    <string name="share">Partager</string>
     <dimen name="little_space_between_bloc">5dp</dimen>
     <dimen name="space_between_bloc">13dp</dimen>
     <dimen name="double_space_between_bloc">26dp</dimen>

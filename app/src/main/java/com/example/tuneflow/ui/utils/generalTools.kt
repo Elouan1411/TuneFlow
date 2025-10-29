@@ -1,6 +1,10 @@
 package com.example.tuneflow.ui.utils
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
+import android.net.Uri
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -78,4 +82,39 @@ object generalTools {
             playButton.setImageResource(R.drawable.ic_pause)
         }
     }
+
+    /**
+     * Opens the song in Apple Music if installed, otherwise in a web browser.
+     */
+    fun redirectOnAppleMusic(context: Context, trackUrl: String) {
+        // Intent pour Apple Music
+        val appIntent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(trackUrl)
+            setPackage("com.apple.android.music") // official package android for apple music
+        }
+
+        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(trackUrl))
+
+        try {
+            context.startActivity(appIntent)
+        } catch (e: ActivityNotFoundException) {
+            // if doesn't have application
+            context.startActivity(webIntent)
+        }
+    }
+
+    /**
+     * Share a song with a personalized message including the Apple Music link.
+     *
+     * @param context the context from which the Intent will be launched
+     * @param message the message that will be sent
+     */
+    fun shareMessage(context: Context, message: String) {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, message)
+        }
+        context.startActivity(Intent.createChooser(intent, "Partager via"))
+    }
+
 }
