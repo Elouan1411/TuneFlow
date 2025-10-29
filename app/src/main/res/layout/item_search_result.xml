@@ -73,6 +73,7 @@
             android:id="@+id/buttonPlay"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:foreground="@drawable/ripple_circle"
             android:src="@drawable/ic_play"
             android:background="@drawable/bg_circle_color"
             android:contentDescription="@string/play_pause"/>

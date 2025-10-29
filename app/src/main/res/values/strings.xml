@@ -43,6 +43,12 @@
     <string name="playlists">Playlists</string>
     <string name="profil">Profil</string>
     <string name="my_playlists">Mes playlists</string>
+    <string name="new_playlist">Nouvelle playlist</string>
+    <string name="give_name_playlist">Donnez un nom à votre nouvelle playlist</string>
+    <string name="ex_name_playlist">Ex: Mes favoris, Workout, Chill...</string>
+    <string name="cancel">Annuler</string>
+    <string name="create">Créer</string>
+    <string name="close">fermer</string>
     <dimen name="little_space_between_bloc">5dp</dimen>
     <dimen name="space_between_bloc">13dp</dimen>
     <dimen name="double_space_between_bloc">26dp</dimen>

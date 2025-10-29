@@ -2,14 +2,18 @@ package com.example.tuneflow.ui
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.widget.GridLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -17,6 +21,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.example.tuneflow.MainActivity
 import com.example.tuneflow.R
+import com.example.tuneflow.data.PlaylistInfo
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
 
@@ -62,16 +67,8 @@ class PlaylistsFragment : Fragment() {
             nbSongsText.text = "${playlist.songCount} $word"
 
 
-            // Load cover art with borderRadius
-            val radiusDp = 16f
-            val radiusPx = (radiusDp * view.context.resources.displayMetrics.density).toInt()
-            Glide.with(this)
-                .load(playlist.lastSongCoverUrl.replace("100x100", "600x600"))
-                .placeholder(ColorDrawable(Color.TRANSPARENT))
-                .apply(RequestOptions().transform(RoundedCorners(radiusPx)))
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .skipMemoryCache(true) // for transition
-                .into(coverImage)
+
+            displayImage(playlist, coverImage, view)
 
 
             // configuring LayoutParams for GridLayout
@@ -104,6 +101,14 @@ class PlaylistsFragment : Fragment() {
         // adjust number of row
         val rowCount = (playlists.size + columnCount - 1) / columnCount
         gridLayout.rowCount = rowCount
+
+        // create playlist
+        view.findViewById<RelativeLayout>(R.id.buttonWantCreatePlaylist).setOnClickListener {
+            PopupNewPlaylistFragment { playlistName ->
+                db.createPlaylist(playlistName)
+            }.show(parentFragmentManager, "popup_new_playlist")
+
+        }
     }
 
     override fun onResume() {
@@ -115,6 +120,37 @@ class PlaylistsFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         MusicPlayerManager.pauseSong(true)
+    }
+
+    /**
+     * Displays the image with rounded edges and a gradient for better text readability
+     *  @param playlist The playlist information containing the cover image URL.
+     *  @param coverImage The ImageView where the cover image will be displayed.
+     *  @param view The parent view
+     */
+    fun displayImage(playlist: PlaylistInfo, coverImage: ImageView, view: View){
+        val radiusDp = 16f
+        val radiusPx = radiusDp * view.context.resources.displayMetrics.density
+
+        // laod image with border radius
+        Glide.with(this)
+            .load(playlist.lastSongCoverUrl.replace("100x100", "600x600"))
+            .placeholder(ColorDrawable(Color.TRANSPARENT))
+            .apply(RequestOptions().transform(RoundedCorners(radiusPx.toInt())))
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .skipMemoryCache(true)
+            .into(coverImage)
+
+        // gradient
+        val gradient = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(Color.TRANSPARENT, Color.parseColor("#CC000000"))
+        ).apply {
+            cornerRadius = radiusPx
+        }
+
+        // apply gradient
+        coverImage.foreground = gradient
     }
 
 

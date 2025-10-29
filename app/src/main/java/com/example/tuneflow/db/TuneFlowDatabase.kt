@@ -554,6 +554,41 @@ class TuneFlowDatabase(
         return playlists
     }
 
+    /**
+     * Create new playlist in db
+     * If a playlist with the same name already exists, it will not be recreated
+     *
+     * @param playlistName name of the playlist
+     * @return true if the playlist has been created, false if it already existed or in case of error
+     */
+    fun createPlaylist(playlistName: String): Boolean {
+        val db = writableDatabase
+
+        // Check if the playlist already exists
+        val cursor = db.rawQuery(
+            "SELECT 1 FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
+            arrayOf(playlistName)
+        )
+
+        val exists = cursor.moveToFirst()
+        cursor.close()
+
+        if (exists) {
+            return false
+        }
+
+        // create new playlist
+        val values = ContentValues().apply {
+            put(PLAYLIST_NAME, playlistName)
+        }
+
+        val result = db.insert(TABLE_PLAYLISTS, null, values)
+        val success = result != -1L
+
+        return success
+    }
+
+
 
 
 
