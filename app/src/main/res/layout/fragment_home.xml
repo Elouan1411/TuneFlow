@@ -38,12 +38,85 @@
 
     </RelativeLayout>
 
+
+    <!--    Error connection-->
+    <RelativeLayout
+        android:id="@+id/layoutError"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_home_gradient"
+        android:gravity="center"
+        android:padding="24dp"
+        android:visibility="gone">
+
+
+        <ImageView
+            android:id="@+id/errorIcon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_error"
+            android:contentDescription="@string/error"
+            android:layout_marginBottom="16dp" />
+
+
+        <TextView
+            android:id="@+id/errorMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/errorIcon"
+            android:layout_centerHorizontal="true"
+            android:text="@string/error_occured"
+            android:textColor="@color/home_title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="12dp" />
+
+
+        <TextView
+            android:id="@+id/errorSubText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/errorMessage"
+            android:layout_centerHorizontal="true"
+            android:text="Vérifie ta connexion Internet"
+            android:textColor="@color/subtitle"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/errorSubText"
+            android:layout_centerHorizontal="true"
+            android:text="@string/retry"
+            android:textAllCaps="false"
+            android:textColor="@color/description"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:elevation="4dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_text_rounded" />
+
+    </RelativeLayout>
+
+
+
+
     <!--    content-->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" />
+
+
+
 
 
 </FrameLayout>

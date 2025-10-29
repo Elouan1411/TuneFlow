@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
     var moodFromDiscover: String? = null
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
@@ -26,6 +27,7 @@ import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.ui.adapters.SwipeAdapter
 import com.example.tuneflow.network.ApiClient
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class HomeFragment : Fragment() {
 
@@ -36,6 +38,7 @@ class HomeFragment : Fragment() {
     private var moodDiscover: String = ""
     private lateinit var loaderImage: ImageView
     private lateinit var layoutLoader: RelativeLayout
+    private lateinit var layoutError: RelativeLayout
     private var loaderAnimator: ObjectAnimator? = null
 
     private val globalStyles = listOf(
@@ -91,10 +94,12 @@ class HomeFragment : Fragment() {
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
-        val viewPager = view.findViewById<ViewPager2>(R.id.viewPager)
+        viewPager = view.findViewById<ViewPager2>(R.id.viewPager)
 
         layoutLoader = view.findViewById<RelativeLayout>(R.id.layoutLoader)
         loaderImage = view.findViewById<ImageView>(R.id.loaderImage)
+
+        layoutError = view.findViewById<RelativeLayout>(R.id.layoutError)
 
         displayLoader(view)
 
@@ -114,7 +119,6 @@ class HomeFragment : Fragment() {
         }
 
         fetchSongs(adapter)
-        //TODO add loader animate
 
         // listener on swipe
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -136,6 +140,12 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+
+        view.findViewById<AppCompatButton>(R.id.retryButton).setOnClickListener {
+            (activity as? MainActivity)?.homeFragment?.let {
+                (activity as MainActivity).showFragment(it)
+            }
+        }
         return view
     }
 
@@ -177,7 +187,32 @@ class HomeFragment : Fragment() {
                 // We do not scan the last element (the date)
                 // It will be used for a second filter for the style chosen at random
                 for (j in 0 until search.size - 1) {
-                    val songs = ApiClient.api.getSongs(ApiClient.cleanUrlForApi(search[j])).results
+                    val songs: List<Song> = try {
+                        val response = ApiClient.api.getSongs(ApiClient.cleanUrlForApi(search[j]))
+                        if (response.isSuccessful) {
+                            response.body()?.results ?: emptyList()
+                        } else {
+                            Log.e("API", "Erreur serveur : ${response.code()}")
+                            layoutError.visibility = View.VISIBLE
+                            layoutLoader.visibility = View.GONE
+                            viewPager.visibility = View.GONE
+                            return@launch
+                        }
+                    } catch (e: IOException) {
+                        Log.e("API", "Erreur réseau : ${e.message}")
+                        layoutError.visibility = View.VISIBLE
+                        layoutLoader.visibility = View.GONE
+                        viewPager.visibility = View.GONE
+                        return@launch
+                    } catch (e: Exception) {
+                        Log.e("API", "Erreur inconnue : ${e.message}")
+                        layoutError.visibility = View.VISIBLE
+                        layoutLoader.visibility = View.GONE
+                        viewPager.visibility = View.GONE
+                        return@launch
+                    }
+
+
 
 
                     var find = 0

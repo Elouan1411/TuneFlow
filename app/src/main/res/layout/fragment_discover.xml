@@ -44,7 +44,6 @@
             android:padding="8dp"
             android:gravity="center_vertical"
             android:layout_marginBottom="@dimen/space_between_bloc">
-<!--            todo -> ajouter une croix pour supprimer ce qu'on a ecrit -->
 
             <ImageView
                 android:layout_width="24dp"

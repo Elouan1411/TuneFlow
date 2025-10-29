@@ -4,6 +4,7 @@
     <solid android:color="@color/bg_text_rounded"/>
     <corners android:radius="16dp"/>
 
+
     <stroke
         android:width="2dp"
     android:color="@color/border_background_text"/>

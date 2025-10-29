@@ -5,6 +5,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.core.widget.ImageViewCompat
@@ -36,6 +38,7 @@ import com.example.tuneflow.player.MusicPlayerManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 
 class DiscoverFragment : Fragment(), SwipeListener {
@@ -103,7 +106,28 @@ class DiscoverFragment : Fragment(), SwipeListener {
                 delay(100) // debounce to avoid too many requests
                 if (query.isNotEmpty()) {
                     startMusicLoader()
-                    val results = ApiClient.api.getSongs(query, limit = MAX_RESULT).results
+
+
+                    var results: List<Song> = emptyList()
+                    try {
+                        val response = ApiClient.api.getSongs(query, limit = MAX_RESULT)
+                        if (response.isSuccessful) {
+                            results = response.body()?.results ?: emptyList()
+                        } else {
+                            Log.e("API", "Erreur serveur : ${response.code()}")
+                        }
+                    } catch (e: IOException) {
+                        Log.e("API", "Erreur réseau : ${e.message}")
+                        Toast.makeText(context, "Pas de connexion Internet", Toast.LENGTH_SHORT)
+                            .show()
+                    } catch (e: Exception) {
+                        Log.e("API", "Erreur inconnue : ${e.message}")
+                    }
+
+
+
+
+
                     stopMusicLoader()
                     displaySearchResults(results, query.isEmpty())
                 } else {
@@ -473,12 +497,7 @@ class DiscoverFragment : Fragment(), SwipeListener {
      */
     private fun startMusicLoader() {
         closeButton.visibility = View.GONE
-        musicLoader.apply {
-            // Fade in
-            alpha = 0f
-            visibility = View.VISIBLE
-            animate().alpha(1f).setDuration(100).start()
-        }
+        musicLoader.visibility = View.VISIBLE
 
         loaderAnimator = ObjectAnimator.ofFloat(musicLoader, "rotation", 0f, 360f).apply {
             duration = 1500
@@ -490,17 +509,12 @@ class DiscoverFragment : Fragment(), SwipeListener {
 
     /**
      * Stops the music loader animation
-     * Shows the close button after the fade-out
+     * Shows the close button
      */
     private fun stopMusicLoader() {
-        // Fade out
-        musicLoader.animate().alpha(0f).setDuration(100).withEndAction {
-            loaderAnimator?.cancel()
-            musicLoader.visibility = View.GONE
-            closeButton.postDelayed({
-                closeButton.visibility = View.VISIBLE
-            }, 0)
-        }.start()
+        loaderAnimator?.cancel()
+        musicLoader.visibility = View.GONE
+        closeButton.visibility = View.VISIBLE
 
     }
 
