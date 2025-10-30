@@ -30,11 +30,11 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_alignParentEnd="true"
-            android:background="@android:color/transparent"
             android:layout_marginEnd="@dimen/space_between_bloc"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/close"
             android:padding="4dp"
-            android:src="@drawable/ic_close"/>
+            android:src="@drawable/ic_close" />
     </RelativeLayout>
 
     <!-- Song info -->
@@ -49,15 +49,14 @@
         tools:text="Titre • Artiste" />
 
 
-
     <LinearLayout
         android:id="@+id/createPlaylist"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/bg_rectangle_color"
-        android:foreground="@drawable/ripple_button"
-        android:focusable="true"
         android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/ripple_button"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -65,8 +64,8 @@
             android:id="@+id/buttonWantCreatePlaylistInBottomSheat"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginEnd="@dimen/space_between_bloc"
             android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/space_between_bloc"
             android:background="@drawable/bg_circle_grey">
 
             <ImageView

@@ -163,3 +163,8 @@ google-services.json
 *.ap_
 *.aab
 
+# Gradle build folder
+/build/
+/app/build/
+/app/release/
+

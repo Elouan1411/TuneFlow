@@ -55,9 +55,9 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_error"
+            android:layout_marginBottom="16dp"
             android:contentDescription="@string/error"
-            android:layout_marginBottom="16dp" />
+            android:src="@drawable/ic_error" />
 
 
         <TextView
@@ -66,12 +66,12 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/errorIcon"
             android:layout_centerHorizontal="true"
+            android:layout_marginBottom="12dp"
+            android:gravity="center"
             android:text="@string/error_occured"
             android:textColor="@color/home_title"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="12dp" />
+            android:textStyle="bold" />
 
 
         <TextView
@@ -80,11 +80,11 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/errorMessage"
             android:layout_centerHorizontal="true"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
             android:text="Vérifie ta connexion Internet"
             android:textColor="@color/subtitle"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:layout_marginBottom="24dp" />
+            android:textSize="14sp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/retryButton"
@@ -92,20 +92,18 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/errorSubText"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_text_rounded"
+            android:elevation="4dp"
+            android:paddingStart="32dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="32dp"
+            android:paddingBottom="10dp"
             android:text="@string/retry"
             android:textAllCaps="false"
-            android:textColor="@color/description"
-            android:paddingStart="32dp"
-            android:paddingEnd="32dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:elevation="4dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_text_rounded" />
+            android:textColor="@color/description" />
 
     </RelativeLayout>
-
-
 
 
     <!--    content-->
@@ -114,9 +112,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" />
-
-
-
 
 
 </FrameLayout>

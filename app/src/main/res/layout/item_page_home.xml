@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_home_gradient"
     android:gravity="center">
@@ -10,25 +10,27 @@
     <RelativeLayout
         android:id="@+id/layoutInfoCurrentMood"
         android:layout_width="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/padding_screen"
-        android:layout_marginStart="@dimen/little_padding_screen">
+        android:layout_marginStart="@dimen/little_padding_screen"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
         <ImageView
             android:id="@+id/arrow_left"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:contentDescription="@string/left_arrow"
-            android:src="@drawable/ic_arrow_left"/>
+            android:src="@drawable/ic_arrow_left" />
+
         <TextView
-            android:layout_toEndOf="@id/arrow_left"
-            android:layout_marginStart="5dp"
-            android:textColor="@color/subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/leave_mood_sport"/>
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@id/arrow_left"
+            android:text="@string/leave_mood_sport"
+            android:textColor="@color/subtitle" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -145,10 +147,10 @@
             android:id="@+id/textAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:foreground="@drawable/ripple_cover"
             android:layout_below="@id/divTitle"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/space_between_bloc"
+            android:foreground="@drawable/ripple_cover"
             android:gravity="center"
             android:paddingHorizontal="@dimen/padding_screen"
             android:textColor="@color/subtitle"
@@ -256,11 +258,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/div_button"
-            android:textStyle="italic"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/little_space_between_bloc"
             android:text="@string/Share_underline"
-            android:textColor="@color/apple_music_text" />
+            android:textColor="@color/apple_music_text"
+            android:textStyle="italic" />
 
         <ImageView
             android:id="@+id/arrow_bottom"

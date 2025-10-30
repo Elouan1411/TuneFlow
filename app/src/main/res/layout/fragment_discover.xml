@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/bg_home_gradient"
     android:fillViewport="true">
 
@@ -10,101 +10,100 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingVertical="@dimen/padding_screen"
-        android:paddingHorizontal="@dimen/little_padding_screen">
+        android:paddingHorizontal="@dimen/little_padding_screen"
+        android:paddingVertical="@dimen/padding_screen">
 
         <!-- title -->
         <TextView
             android:id="@+id/title_discover"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
             android:text="@string/discover"
             android:textColor="@color/home_title"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:paddingBottom="4dp" />
+            android:textStyle="bold" />
 
         <!-- subtitle -->
         <TextView
             android:id="@+id/subtitle_discover"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingBottom="16dp"
             android:text="@string/explore_music"
             android:textColor="@color/subtitle"
-            android:textSize="14sp"
-            android:paddingBottom="16dp" />
+            android:textSize="14sp" />
 
         <!-- search bar -->
         <LinearLayout
             android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_marginBottom="@dimen/space_between_bloc"
             android:background="@drawable/bg_text_rounded"
-            android:orientation="horizontal"
-            android:padding="8dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="@dimen/space_between_bloc">
+            android:orientation="horizontal"
+            android:padding="8dp">
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
                 android:contentDescription="@string/search"
-                android:src="@drawable/ic_search"
-                android:layout_marginEnd="8dp" />
+                android:src="@drawable/ic_search" />
 
             <EditText
                 android:id="@+id/editTextSearchBar"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="@string/search_song_artiste"
-                android:background="@null"
-                android:textColor="@color/subtitle"
-                android:textColorHint="@color/subtitle"
                 android:layout_weight="1"
+                android:background="@null"
+                android:hint="@string/search_song_artiste"
                 android:inputType="text"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textColor="@color/subtitle"
+                android:textColorHint="@color/subtitle" />
 
             <ImageView
                 android:id="@+id/musicLoader"
                 android:layout_width="24dp"
-                android:layout_marginStart="@dimen/space_between_bloc"
                 android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/space_between_bloc"
                 android:layout_marginEnd="8dp"
                 android:visibility="gone"
-                tools:src="@drawable/ic_vinyl"
-                android:layout_gravity="center"/>
+                tools:src="@drawable/ic_vinyl" />
 
             <ImageView
                 android:id="@+id/clear_text"
                 android:layout_width="24dp"
-                android:layout_marginStart="@dimen/space_between_bloc"
                 android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/space_between_bloc"
                 android:layout_marginEnd="8dp"
-                android:visibility="gone"
                 android:src="@drawable/ic_close"
-                android:layout_gravity="center"/>
+                android:visibility="gone" />
         </LinearLayout>
-
 
 
         <TextView
             android:id="@+id/noResultsText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/space_between_bloc"
             android:text="@string/no_result"
             android:textColor="@color/subtitle"
-            android:layout_marginBottom="@dimen/space_between_bloc"
-            android:visibility="gone"
-            android:layout_gravity="center_horizontal"/>
+            android:visibility="gone" />
 
 
         <LinearLayout
+            android:id="@+id/layoutResult"
             android:layout_width="match_parent"
             android:layout_height="400dp"
-            android:orientation="vertical"
             android:layout_marginBottom="@dimen/space_between_bloc"
             android:background="@drawable/bg_text_rounded"
-            android:id="@+id/layoutResult"
+            android:orientation="vertical"
             android:visibility="gone">
 
             <com.example.tuneflow.InnerScrollView
@@ -112,40 +111,35 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
 
-                android:visibility="visible"
-                android:fillViewport="true">
+                android:fillViewport="true"
+                android:visibility="visible">
 
                 <LinearLayout
                     android:id="@+id/searchResultsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingTop="8dp"/>
+                    android:paddingTop="8dp" />
             </com.example.tuneflow.InnerScrollView>
 
             <ImageView
                 android:id="@+id/arrowBottomSearch"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
+                android:layout_gravity="center"
                 android:contentDescription="@string/arrow_bottom"
-                android:src="@drawable/ic_arrow_bottom"
-                android:layout_gravity="center"/>
+                android:src="@drawable/ic_arrow_bottom" />
         </LinearLayout>
 
 
-
-
-
-
-
         <GridLayout
+            android:id="@+id/gridLayoutDiscover"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:rowCount="3"
-            android:id="@+id/gridLayoutDiscover"
             android:alignmentMode="alignMargins"
+            android:columnCount="2"
             android:columnOrderPreserved="false"
+            android:rowCount="3"
             android:rowOrderPreserved="false"
             android:useDefaultMargins="true">
 
@@ -153,9 +147,9 @@
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="170dp"
+                android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_marginVertical="8dp"
-                android:layout_rowWeight="1"
                 android:layout_marginEnd="8dp"
                 android:foreground="@drawable/ripple_cover">
 
@@ -169,23 +163,22 @@
                     tools:src="@drawable/bg_happy_image" />
 
 
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_margin="12dp"
                     android:text="@string/happy"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="bottom|start"
-                    android:layout_margin="12dp" />
+                    android:textStyle="bold" />
             </FrameLayout>
 
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="170dp"
-                android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:layout_marginVertical="8dp"
                 android:layout_marginStart="8dp"
                 android:foreground="@drawable/ripple_cover">
@@ -200,23 +193,22 @@
                     tools:src="@drawable/bg_chill_image" />
 
 
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_margin="12dp"
                     android:text="@string/chill"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="bottom|start"
-                    android:layout_margin="12dp" />
+                    android:textStyle="bold" />
             </FrameLayout>
 
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="170dp"
-                android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:layout_marginVertical="8dp"
                 android:layout_marginEnd="8dp"
                 android:foreground="@drawable/ripple_cover">
@@ -231,24 +223,23 @@
                     tools:src="@drawable/bg_workout_image" />
 
 
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_margin="12dp"
                     android:text="@string/sport"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="bottom|start"
-                    android:layout_margin="12dp" />
+                    android:textStyle="bold" />
             </FrameLayout>
 
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="170dp"
+                android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_marginVertical="8dp"
-                android:layout_rowWeight="1"
                 android:layout_marginStart="8dp"
                 android:foreground="@drawable/ripple_cover">
 
@@ -262,25 +253,24 @@
                     tools:src="@drawable/bg_romantic_image" />
 
 
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_margin="12dp"
                     android:text="@string/romantic"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="bottom|start"
-                    android:layout_margin="12dp" />
+                    android:textStyle="bold" />
             </FrameLayout>
 
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="170dp"
-                android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_columnWeight="1"
                 android:layout_marginVertical="8dp"
+                android:layout_marginEnd="8dp"
                 android:foreground="@drawable/ripple_cover">
 
 
@@ -293,23 +283,22 @@
                     tools:src="@drawable/bg_sad_image" />
 
 
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_margin="12dp"
                     android:text="@string/sad"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="bottom|start"
-                    android:layout_margin="12dp" />
+                    android:textStyle="bold" />
             </FrameLayout>
 
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="170dp"
-                android:layout_columnWeight="1"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:layout_marginVertical="8dp"
                 android:layout_marginStart="8dp"
                 android:foreground="@drawable/ripple_cover">
@@ -324,16 +313,15 @@
                     tools:src="@drawable/bg_focus_image" />
 
 
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_margin="12dp"
                     android:text="@string/work"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="bottom|start"
-                    android:layout_margin="12dp" />
+                    android:textStyle="bold" />
             </FrameLayout>
 
         </GridLayout>

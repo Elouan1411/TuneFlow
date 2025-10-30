@@ -125,9 +125,10 @@ object generalTools {
      *  @param db TuneFlowDatabase
      *  @param context Context
      */
-    fun sharePlaylist(name: String, db: TuneFlowDatabase, context: Context){
+    fun sharePlaylist(name: String, db: TuneFlowDatabase, context: Context) {
         val songs: List<Song> = db.getSongsFromPlaylist(name)
-        val songsList = songs.joinToString(separator = "\n") { "   🎵 ${it.trackName} - ${it.artistName}" }
+        val songsList =
+            songs.joinToString(separator = "\n") { "   🎵 ${it.trackName} - ${it.artistName}" }
 
         val message = """
 🎶 J'ai créé ma playlist "${name}" grâce à TuneFlow !

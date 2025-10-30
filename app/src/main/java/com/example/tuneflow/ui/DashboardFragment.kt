@@ -36,15 +36,16 @@ class DashboardFragment : Fragment() {
     private lateinit var layoutStat3: LinearLayout
     private lateinit var layoutStat4: LinearLayout
     private lateinit var layoutStat5: LinearLayout
-    private lateinit var statsLayouts : List<LinearLayout>
+    private lateinit var statsLayouts: List<LinearLayout>
 
     private val db: TuneFlowDatabase
         get() = (activity as MainActivity).db
 
 
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         return inflater.inflate(R.layout.fragment_dashboard, container, false)
     }
@@ -81,7 +82,8 @@ class DashboardFragment : Fragment() {
         val textNbAuthor = view.findViewById<TextView>(R.id.textNbAuthor)
         textNbAuthor.text = formatNumber(totalAuthors)
         val textAuthorDiscover = view.findViewById<TextView>(R.id.textAuthorDiscover)
-        textAuthorDiscover.text = if (totalAuthors < 2) "Artiste découvert" else "Artistes découverts"
+        textAuthorDiscover.text =
+            if (totalAuthors < 2) "Artiste découvert" else "Artistes découverts"
 
         // --- Top artiste ---
         val textAuthorName = view.findViewById<TextView>(R.id.textAuthorName)
@@ -212,14 +214,20 @@ class DashboardFragment : Fragment() {
                         bottomSheet.show(parentFragmentManager, "playlistBottomSheet")
                         true
                     }
+
                     R.id.listenOnAppleMusic -> {
                         generalTools.redirectOnAppleMusic(requireContext(), song.trackViewUrl)
                         true
                     }
+
                     R.id.share -> {
-                        generalTools.shareMessage(requireContext(), "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
+                        generalTools.shareMessage(
+                            requireContext(),
+                            "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}"
+                        )
                         true
                     }
+
                     else -> false
                 }
             }
@@ -248,7 +256,14 @@ class DashboardFragment : Fragment() {
 
             // Assign listeners
             itemView.setOnClickListener { generalTools.toggleSong(db, song, container, playButton) }
-            playButton.setOnClickListener { generalTools.toggleSong(db, song, container, playButton) }
+            playButton.setOnClickListener {
+                generalTools.toggleSong(
+                    db,
+                    song,
+                    container,
+                    playButton
+                )
+            }
             likeButton.setOnClickListener { generalTools.updateLikeIcon(song, likeButton, db) }
 
 
@@ -278,7 +293,7 @@ class DashboardFragment : Fragment() {
     /**
      * Displays the 10 most recently liked songs by fetching their IDs and showing the corresponding results.
      */
-    private fun displayRecentLike(){
+    private fun displayRecentLike() {
         // get top 10 songId liked
         val listSongId: List<Long> = db.getRecentLikedSongs()
         val listSong = listSongId.mapNotNull { db.getSongFromDb(it) }.toMutableList()

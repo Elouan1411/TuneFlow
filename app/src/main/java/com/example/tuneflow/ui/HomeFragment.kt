@@ -213,8 +213,6 @@ class HomeFragment : Fragment() {
                     }
 
 
-
-
                     var find = 0
                     var i = 0
                     // we select two sounds that the user has never listened to

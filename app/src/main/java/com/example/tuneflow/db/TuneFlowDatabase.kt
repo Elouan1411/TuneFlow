@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
 import com.example.tuneflow.data.PlaylistInfo
 import com.example.tuneflow.data.Song
 
@@ -214,7 +213,7 @@ class TuneFlowDatabase(
         val db = writableDatabase
         db.beginTransaction()
         try {
-            // --- get playlist id ---
+            // get playlist id
             val cursorPlaylist = db.rawQuery(
                 "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
                 arrayOf(playlistName)
@@ -228,7 +227,7 @@ class TuneFlowDatabase(
                 cursorPlaylist.getLong(cursorPlaylist.getColumnIndexOrThrow(PLAYLIST_ID))
             cursorPlaylist.close()
 
-            // --- get internal SONG_ID ---
+            // get internal SONG_ID
             val cursorSongId = db.rawQuery(
                 "SELECT $SONG_ID FROM $TABLE_SONGS WHERE $SONG_LISTENING_ID = ? LIMIT 1",
                 arrayOf(song.trackId.toString())
@@ -241,14 +240,14 @@ class TuneFlowDatabase(
             val internalSongId = cursorSongId.getLong(cursorSongId.getColumnIndexOrThrow(SONG_ID))
             cursorSongId.close()
 
-            // --- remove song from playlist ---
+            // remove song from playlist
             db.delete(
                 TABLE_PLAYLIST_SONGS,
                 "$PS_PLAYLIST_ID = ? AND $PS_SONG_ID = ?",
                 arrayOf(playlistId.toString(), internalSongId.toString())
             )
 
-            // --- remove playlist if empty ---
+            // remove playlist if empty
             val cursorPlaylistEmpty = db.rawQuery(
                 "SELECT 1 FROM $TABLE_PLAYLIST_SONGS WHERE $PS_PLAYLIST_ID = ? LIMIT 1",
                 arrayOf(playlistId.toString())
@@ -597,7 +596,6 @@ class TuneFlowDatabase(
     }
 
 
-
     /**
      * Get all songs from a given playlist.
      *
@@ -628,20 +626,32 @@ class TuneFlowDatabase(
                     collectionId = 0L,
                     trackId = cursor.getLong(cursor.getColumnIndexOrThrow(SONG_LISTENING_ID)),
                     artistName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_AUTHOR)) ?: "",
-                    collectionName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM)) ?: "",
+                    collectionName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM))
+                        ?: "",
                     trackName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_TITLE)) ?: "",
                     artistViewUrl = "",
                     collectionViewUrl = "",
-                    trackViewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_APPLE_MUSIC_URL))
+                    trackViewUrl = cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            SONG_APPLE_MUSIC_URL
+                        )
+                    )
                         ?: "",
-                    previewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_PREVIEW_URL)) ?: "",
+                    previewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_PREVIEW_URL))
+                        ?: "",
                     artworkUrl60 = "",
-                    artworkUrl100 = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM_COVER_URL))
+                    artworkUrl100 = cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            SONG_ALBUM_COVER_URL
+                        )
+                    )
                         ?: "",
-                    releaseDate = cursor.getString(cursor.getColumnIndexOrThrow(SONG_RELEASE_YEAR)) ?: "",
+                    releaseDate = cursor.getString(cursor.getColumnIndexOrThrow(SONG_RELEASE_YEAR))
+                        ?: "",
                     trackTimeMillis = 0L,
                     country = "",
-                    primaryGenreName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_STYLE)) ?: ""
+                    primaryGenreName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_STYLE))
+                        ?: ""
                 )
                 songs.add(song)
             } while (cursor.moveToNext())
@@ -686,7 +696,6 @@ class TuneFlowDatabase(
             db.endTransaction()
         }
     }
-
 
 
     companion object {

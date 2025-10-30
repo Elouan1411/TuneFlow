@@ -19,35 +19,35 @@
             android:id="@+id/deleteButtonBottomSheetInPlaylist"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:background="@android:color/transparent"
             android:layout_alignParentStart="true"
             android:layout_marginStart="@dimen/space_between_bloc"
-            android:foreground="@drawable/ripple_circle"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/delete"
+            android:foreground="@drawable/ripple_circle"
             android:padding="4dp"
-            android:src="@drawable/ic_delete"/>
+            android:src="@drawable/ic_delete" />
 
         <TextView
             android:id="@+id/titleBottomSheetInPlaylist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            tools:text="@string/title_of_playlist"
             android:textColor="@color/home_title"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="@string/title_of_playlist" />
 
         <ImageButton
             android:id="@+id/closeButtonBottomSheetInPlaylist"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_alignParentEnd="true"
-            android:background="@android:color/transparent"
-            android:foreground="@drawable/ripple_circle"
             android:layout_marginEnd="@dimen/space_between_bloc"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/close"
+            android:foreground="@drawable/ripple_circle"
             android:padding="4dp"
-            android:src="@drawable/ic_close"/>
+            android:src="@drawable/ic_close" />
     </RelativeLayout>
 
     <!-- Song info -->
@@ -65,14 +65,13 @@
     <TextView
         android:id="@+id/sharePlaylistText"
         android:layout_width="match_parent"
-        android:foreground="@drawable/ripple_cover"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/padding_screen"
+        android:foreground="@drawable/ripple_cover"
         android:gravity="center"
+        android:text="@string/Share_underline"
         android:textColor="@color/subtitle"
-        android:textSize="14sp"
-        android:text="@string/Share_underline" />
-
+        android:textSize="14sp" />
 
 
     <!-- RecyclerView for playlists -->

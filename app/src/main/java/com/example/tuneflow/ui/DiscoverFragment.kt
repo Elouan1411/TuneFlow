@@ -4,6 +4,8 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -223,12 +225,21 @@ class DiscoverFragment : Fragment() {
         imageRes: Int,
         radiusDp: Float = 16f
     ) {
-        val radiusPx = (radiusDp * context.resources.displayMetrics.density).toInt()
+        val radiusPx = (radiusDp * context.resources.displayMetrics.density)
         Glide.with(context)
             .load(imageRes)
-            .apply(RequestOptions().transform(RoundedCorners(radiusPx)))
+            .apply(RequestOptions().transform(RoundedCorners(radiusPx.toInt())))
             .transition(DrawableTransitionOptions.withCrossFade())
             .into(imageView)
+        // gradient
+        val gradient = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(Color.TRANSPARENT, Color.parseColor("#CC000000"))
+        ).apply {
+            cornerRadius = radiusPx - 5
+        }
+        // apply gradient
+        imageView.foreground = gradient
     }
 
 
@@ -350,14 +361,20 @@ class DiscoverFragment : Fragment() {
                         bottomSheet.show(parentFragmentManager, "playlistBottomSheet")
                         true
                     }
+
                     R.id.listenOnAppleMusic -> {
                         generalTools.redirectOnAppleMusic(requireContext(), song.trackViewUrl)
                         true
                     }
+
                     R.id.share -> {
-                        generalTools.shareMessage(requireContext(), "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
+                        generalTools.shareMessage(
+                            requireContext(),
+                            "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}"
+                        )
                         true
                     }
+
                     else -> false
                 }
             }
@@ -385,8 +402,15 @@ class DiscoverFragment : Fragment() {
                 .into(coverView)
 
             // Assign listeners
-            itemView.setOnClickListener { generalTools.toggleSong(db,song, container, playButton) }
-            playButton.setOnClickListener { generalTools.toggleSong(db,song, container, playButton) }
+            itemView.setOnClickListener { generalTools.toggleSong(db, song, container, playButton) }
+            playButton.setOnClickListener {
+                generalTools.toggleSong(
+                    db,
+                    song,
+                    container,
+                    playButton
+                )
+            }
             likeButton.setOnClickListener { generalTools.updateLikeIcon(song, likeButton, db) }
             closeButton.setOnClickListener { searchEditText.text.clear() }
 
@@ -428,9 +452,6 @@ class DiscoverFragment : Fragment() {
     }
 
 
-
-
-
     /**
      * Hides the close button
      * Starts the music loader animation
@@ -461,7 +482,7 @@ class DiscoverFragment : Fragment() {
     /**
      * Changes the size of the scroll view and rotates the arrow in the other direction
      */
-    private fun toggleArrowBottomSearch(){
+    private fun toggleArrowBottomSearch() {
         // change size
         val heightDp = if (!scrollViewOpen) 400 else 150
         val newHeightPx = (heightDp * resources.displayMetrics.density).toInt()

@@ -20,8 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:itemBackground="@color/nav_item_bg_default"
-        app:menu="@menu/bottom_nav_menu"/>
-
+        app:menu="@menu/bottom_nav_menu" />
 
 
 </LinearLayout>

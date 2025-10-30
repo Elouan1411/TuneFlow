@@ -15,6 +15,7 @@ import com.example.tuneflow.ui.HomeFragment
 import com.example.tuneflow.ui.PlaylistsFragment
 import com.example.tuneflow.ui.utils.loadFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+
 class MainActivity : AppCompatActivity() {
 
     lateinit var gestureDetector: GestureDetector
@@ -41,9 +42,9 @@ class MainActivity : AppCompatActivity() {
 
 
         // Removes automatic padding applied by insets
-        ViewCompat.setOnApplyWindowInsetsListener(bottomNavigation) { _, insets ->
-            insets
-        }
+//        ViewCompat.setOnApplyWindowInsetsListener(bottomNavigation) { _, insets ->
+//            insets
+//        }
 
         // PreLoad fragment and display home
         bottomNavigation.selectedItemId = R.id.nav_home
@@ -56,23 +57,29 @@ class MainActivity : AppCompatActivity() {
 
         // Bottom nav actions
         bottomNavigation.setOnItemSelectedListener { page ->
-            when(page.itemId){
-                R.id.nav_home -> supportFragmentManager.loadFragment(R.id.fragment_container,
+            when (page.itemId) {
+                R.id.nav_home -> supportFragmentManager.loadFragment(
+                    R.id.fragment_container,
                     HomeFragment()
                 )
-                R.id.nav_dashboard -> supportFragmentManager.loadFragment(R.id.fragment_container,
+
+                R.id.nav_dashboard -> supportFragmentManager.loadFragment(
+                    R.id.fragment_container,
                     DashboardFragment()
                 )
-                R.id.nav_discover -> supportFragmentManager.loadFragment(R.id.fragment_container,
+
+                R.id.nav_discover -> supportFragmentManager.loadFragment(
+                    R.id.fragment_container,
                     DiscoverFragment()
                 )
-                R.id.nav_playlist -> supportFragmentManager.loadFragment(R.id.fragment_container,
+
+                R.id.nav_playlist -> supportFragmentManager.loadFragment(
+                    R.id.fragment_container,
                     PlaylistsFragment()
                 )
             }
             true
         }
-
 
 
         // Apply the touch listener to the fragment_container (for horizontal swipe)
@@ -105,7 +112,7 @@ class MainActivity : AppCompatActivity() {
 
         // Update BottomNavigationView
         val bottomNavigation: BottomNavigationView = findViewById(R.id.bottom_navigation)
-        when(fragmentToShow) {
+        when (fragmentToShow) {
             homeFragment -> bottomNavigation.selectedItemId = R.id.nav_home
             dashboardFragment -> bottomNavigation.selectedItemId = R.id.nav_dashboard
             discoverFragment -> bottomNavigation.selectedItemId = R.id.nav_discover

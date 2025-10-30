@@ -4,8 +4,8 @@
 
     <gradient
         android:angle="270"
-    android:startColor="@color/overlay_gradient_start"
-    android:centerColor="@color/overlay_gradient_center"
-    android:endColor="@color/overlay_gradient_end"
-    android:centerY="0.7"/>
+        android:centerColor="@color/overlay_gradient_center"
+        android:centerY="0.7"
+        android:endColor="@color/overlay_gradient_end"
+        android:startColor="@color/overlay_gradient_start" />
 </shape>

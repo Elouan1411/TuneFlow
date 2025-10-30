@@ -61,7 +61,6 @@ class PlaylistsFragment : Fragment() {
         }
 
 
-
     }
 
     override fun onResume() {
@@ -82,7 +81,7 @@ class PlaylistsFragment : Fragment() {
      *  @param coverImage The ImageView where the cover image will be displayed.
      *  @param view The parent view
      */
-    fun displayImage(playlist: PlaylistInfo, coverImage: ImageView, view: View){
+    fun displayImage(playlist: PlaylistInfo, coverImage: ImageView, view: View) {
         val radiusDp = 16f
         val radiusPx = radiusDp * view.context.resources.displayMetrics.density
 
@@ -117,7 +116,7 @@ class PlaylistsFragment : Fragment() {
      * Displays the different playlists in a grid format
      * @param view View
      */
-    private fun displayPlaylist(view: View){
+    private fun displayPlaylist(view: View) {
         val playlists = db.getPlaylistsInfo()
         var word = if (playlists.size <= 1) "playlist" else "playlists"
         view.findViewById<TextView>(R.id.subtitleFragmentPlaylist).text = "${playlists.size} $word"
@@ -177,10 +176,12 @@ class PlaylistsFragment : Fragment() {
                             displayPlaylist(requireView())
                             true
                         }
+
                         R.id.option_share -> {
                             generalTools.sharePlaylist(playlist.name, db, requireContext())
                             true
                         }
+
                         else -> false
                     }
                 }
@@ -271,8 +272,6 @@ class PlaylistsFragment : Fragment() {
             if ((index + 1) % childrenPerRow == 0) currentRow++
         }
     }
-
-
 
 
 }

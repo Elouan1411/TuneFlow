@@ -10,10 +10,10 @@
     <string name="vinyl_image">image vinyle</string>
     <string name="happy">Joyeux</string>
     <string name="chill">Chill</string>
-    <string name="sport">Sport</string>
+    <string name="sport">Motivation</string>
     <string name="romantic">Romantique</string>
-    <string name="sad">Triste</string>
-    <string name="work">Travail</string>
+    <string name="sad">Nostalgie</string>
+    <string name="work">Concentration</string>
     <string name="discover">Découvrir</string>
     <string name="explore_music">Explorez la musique selon votre humeur</string>
     <string name="search">rechercher</string>

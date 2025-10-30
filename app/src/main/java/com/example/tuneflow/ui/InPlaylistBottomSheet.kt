@@ -91,7 +91,8 @@ class InPlaylistBottomSheet(
         val updatedSongs = db.getSongsFromPlaylist(playlistName)
         adapter.updateData(updatedSongs)
         nbCurrentSongs -= 1
-        textNbSong.text = if (nbCurrentSongs <= 1) "$nbCurrentSongs morceau" else "$nbCurrentSongs morceaux"
+        textNbSong.text =
+            if (nbCurrentSongs <= 1) "$nbCurrentSongs morceau" else "$nbCurrentSongs morceaux"
         onPlaylistChanged()
     }
 

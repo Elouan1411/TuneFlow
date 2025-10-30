@@ -24,8 +24,6 @@ class PlaylistAdapter(
         val countText: TextView = itemView.findViewById(R.id.textPlaylistCount)
 
 
-
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {

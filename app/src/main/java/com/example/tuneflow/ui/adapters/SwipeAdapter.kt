@@ -33,7 +33,12 @@ import com.example.tuneflow.ui.adapters.SwipeAdapter.SwipeViewHolder
 import com.example.tuneflow.ui.utils.generalTools
 
 
-class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase, private val homeFragment: HomeFragment, private val fragmentManager: FragmentManager) :
+class SwipeAdapter(
+    val items: MutableList<Song>,
+    private val db: TuneFlowDatabase,
+    private val homeFragment: HomeFragment,
+    private val fragmentManager: FragmentManager
+) :
     RecyclerView.Adapter<SwipeViewHolder>() {
 
 
@@ -62,14 +67,15 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
 
         val buttonAddPlaylist: ImageView = view.findViewById<ImageView>(R.id.button_add_playlist)
 
-        val buttonAppleMusic: FrameLayout = view.findViewById<FrameLayout>(R.id.frameLayoutLinkApple)
+        val buttonAppleMusic: FrameLayout =
+            view.findViewById<FrameLayout>(R.id.frameLayoutLinkApple)
         val textShare: TextView = view.findViewById<TextView>(R.id.shareText)
 
 
-        val layoutInfoCurrentMood: RelativeLayout = view.findViewById<RelativeLayout>(R.id.layoutInfoCurrentMood)
+        val layoutInfoCurrentMood: RelativeLayout =
+            view.findViewById<RelativeLayout>(R.id.layoutInfoCurrentMood)
 
         val rootLayout: FrameLayout = view.findViewById(R.id.rootLayout)
-
 
 
         // Animator pour la vinyle
@@ -150,7 +156,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
             holder.isLiked = !holder.isLiked
             if (holder.isLiked) {
                 like(holder)
-            }else{
+            } else {
                 unLike(holder)
             }
             db.addLikedSong(song.trackId, holder.isLiked)
@@ -171,10 +177,13 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
 
         // detect click want apple music
         holder.buttonAppleMusic.setOnClickListener {
-            generalTools.redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
+            generalTools.redirectOnAppleMusic(holder.itemView.context, song.trackViewUrl)
         }
         holder.textShare.setOnClickListener {
-            generalTools.shareMessage(holder.itemView.context, "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
+            generalTools.shareMessage(
+                holder.itemView.context,
+                "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}"
+            )
         }
 
         // detect click on cover for stop music and do animation
@@ -234,7 +243,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * Initialize the adapter for a view holder.
      * @param holder the view holder to initialize
      */
-    fun initAdapter(holder: SwipeViewHolder){
+    fun initAdapter(holder: SwipeViewHolder) {
         playMusic(holder)
         unLike(holder)
         removeFromPlaylist(holder)
@@ -242,18 +251,18 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         holder.isAddedToPlaylist = false
 
         val mood: String = homeFragment.getMood()
-        if (mood.isNotEmpty()){
+        if (mood.isNotEmpty()) {
             val textView = holder.layoutInfoCurrentMood.getChildAt(1) as TextView
             val moodsTranslations = mapOf(
                 "happy" to "joyeux",
                 "chill" to "chill",
-                "workout" to "sport",
+                "workout" to "motivation",
                 "romantic" to "romantique",
-                "sad" to "triste",
-                "focus" to "travail"
+                "sad" to "nostalgie",
+                "focus" to "concentration"
             )
 
-            textView.text =  "Quitter le mood ${moodsTranslations[mood]}"
+            textView.text = "Quitter le mood ${moodsTranslations[mood]}"
             holder.layoutInfoCurrentMood.visibility = View.VISIBLE
         }
     }
@@ -263,7 +272,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * @param button the button to change color
      * @param color the color resource id
      */
-    fun changeColorButton(button: ImageView, color: Int){
+    fun changeColorButton(button: ImageView, color: Int) {
         ImageViewCompat.setImageTintList(
             button,
             ColorStateList.valueOf(ContextCompat.getColor(button.context, color))
@@ -274,7 +283,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * Set the like button to "unliked" state (white color).
      * @param holder the view holder with the button
      */
-    fun unLike(holder: SwipeViewHolder){
+    fun unLike(holder: SwipeViewHolder) {
         changeColorButton(holder.buttonLike, R.color.icon)
     }
 
@@ -282,14 +291,15 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * Set the like button to "liked" state (green color).
      * @param holder the view holder with the button
      */
-    fun like(holder: SwipeViewHolder){
+    fun like(holder: SwipeViewHolder) {
         changeColorButton(holder.buttonLike, R.color.green)
     }
+
     /**
      * Set the like button to "unliked" state (white color).
      * @param holder the view holder with the button
      */
-    fun removeFromPlaylist(holder: SwipeViewHolder){
+    fun removeFromPlaylist(holder: SwipeViewHolder) {
         changeColorButton(holder.buttonAddPlaylist, R.color.icon)
     }
 
@@ -297,7 +307,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * Set the like button to "liked" state (green color).
      * @param holder the view holder with the button
      */
-    fun addToPlaylist(holder: SwipeViewHolder){
+    fun addToPlaylist(holder: SwipeViewHolder) {
         changeColorButton(holder.buttonAddPlaylist, R.color.green)
     }
 
@@ -307,7 +317,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * It also hides the overlay and the sound container, and starts the rotation.
      * @param holder the view holder with music controls
      */
-    fun playMusic(holder: SwipeViewHolder){
+    fun playMusic(holder: SwipeViewHolder) {
         MusicPlayerManager.resumeSong()
         holder.overlayCover.visibility = View.GONE
         holder.soundContainer.visibility = View.GONE
@@ -319,7 +329,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
      * It also shows the overlay and the sound container, and stops the rotation.
      * @param holder the view holder with music controls
      */
-    fun pauseMusic(holder: SwipeViewHolder){
+    fun pauseMusic(holder: SwipeViewHolder) {
         MusicPlayerManager.pauseSong()
         holder.overlayCover.visibility = View.VISIBLE
         holder.soundContainer.visibility = View.VISIBLE
@@ -357,8 +367,6 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
     fun containsSong(song: Song): Boolean {
         return items.any { it.trackId == song.trackId }
     }
-
-
 
 
     /**
