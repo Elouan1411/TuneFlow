@@ -2,11 +2,8 @@ package com.example.tuneflow.ui.adapters
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.content.res.ColorStateList
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -16,10 +13,10 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.ImageViewCompat
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -31,11 +28,12 @@ import com.example.tuneflow.data.Song
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
 import com.example.tuneflow.ui.HomeFragment
+import com.example.tuneflow.ui.PlaylistBottomSheet
 import com.example.tuneflow.ui.adapters.SwipeAdapter.SwipeViewHolder
+import com.example.tuneflow.ui.utils.generalTools
 
 
-
-class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase, private val homeFragment: HomeFragment) :
+class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabase, private val homeFragment: HomeFragment, private val fragmentManager: FragmentManager) :
     RecyclerView.Adapter<SwipeViewHolder>() {
 
 
@@ -65,13 +63,13 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         val buttonAddPlaylist: ImageView = view.findViewById<ImageView>(R.id.button_add_playlist)
 
         val buttonAppleMusic: FrameLayout = view.findViewById<FrameLayout>(R.id.frameLayoutLinkApple)
-        val textAppleMusic: TextView = view.findViewById<TextView>(R.id.appleMusicText)
+        val textShare: TextView = view.findViewById<TextView>(R.id.shareText)
 
-        val texteAuthor: TextView = view.findViewById<TextView>(R.id.textAuthor)
 
         val layoutInfoCurrentMood: RelativeLayout = view.findViewById<RelativeLayout>(R.id.layoutInfoCurrentMood)
 
         val rootLayout: FrameLayout = view.findViewById(R.id.rootLayout)
+
 
 
         // Animator pour la vinyle
@@ -160,14 +158,10 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
 
         // detect click on the button playlist
         holder.frameLayoutPlaylist.setOnClickListener {
-            holder.isAddedToPlaylist = !holder.isAddedToPlaylist
-            if (holder.isAddedToPlaylist){
-                addToPlaylist(holder)
-                db.addSongToPlaylist(song,"playlist_temp2")
-            }else{
-                removeFromPlaylist(holder)
-                db.removeSongFromPlaylist(song, "playlist_temp2")
-            }
+            val bottomSheet = PlaylistBottomSheet(
+                song
+            )
+            bottomSheet.show(fragmentManager, "playlistBottomSheet")
         }
 
         // detect click remove mood
@@ -177,14 +171,11 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
 
         // detect click want apple music
         holder.buttonAppleMusic.setOnClickListener {
-            redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
+            generalTools.redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
         }
-        holder.textAppleMusic.setOnClickListener {
-            redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
+        holder.textShare.setOnClickListener {
+            generalTools.shareMessage(holder.itemView.context, "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
         }
-
-        // detect click on author
-        // todo: faire un menu où y a les différents musique de l'auteur et un lien pour aller sur apple musique (meme menu que dans la barre de recherche je pense)
 
         // detect click on cover for stop music and do animation
         holder.coverImage.setOnClickListener {
@@ -203,6 +194,10 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
             } else {
                 pauseMusic(holder)
             }
+        }
+
+        holder.textAuthor.setOnClickListener {
+            generalTools.redirectOnAppleMusic(holder.itemView.context, song.artistViewUrl)
         }
 
         // double click for like
@@ -364,25 +359,7 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
     }
 
 
-    /**
-     * Opens the song in Apple Music if installed, otherwise in a web browser.
-     */
-    fun redirectOnAppleMusic(context: Context, trackUrl: String) {
-        // Intent pour Apple Music
-        val appIntent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(trackUrl)
-            setPackage("com.apple.android.music") // official package android for apple music
-        }
 
-        val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(trackUrl))
-
-        try {
-            context.startActivity(appIntent)
-        } catch (e: ActivityNotFoundException) {
-            // if doesn't have application
-            context.startActivity(webIntent)
-        }
-    }
 
     /**
      * Shows a heart animation at the given position in a FrameLayout.

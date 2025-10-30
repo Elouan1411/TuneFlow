@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import com.example.tuneflow.data.PlaylistInfo
 import com.example.tuneflow.data.Song
 
 class TuneFlowDatabase(
@@ -16,13 +17,6 @@ class TuneFlowDatabase(
     override fun onCreate(db: SQLiteDatabase?) {
         db ?: return
 
-        // --- Table USER ---
-        val createUserTable = """
-            CREATE TABLE $TABLE_USER(
-                $USER_ID INTEGER PRIMARY KEY
-            );
-        """.trimIndent()
-        db.execSQL(createUserTable)
 
         // --- Table SONGS ---
         val createSongsTable = """
@@ -67,40 +61,12 @@ class TuneFlowDatabase(
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db ?: return
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_USER")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_SONGS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_PLAYLIST_SONGS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_PLAYLISTS")
 
         onCreate(db)
     }
-
-
-    /**
-     * Initializes the user table in the database if it doesn’t already exist.
-     *
-     * Checks if the default user (ID = 0) is present in the table.
-     * If not, it creates the entry with default values.
-     */
-    fun initializeDb() {
-        val db = this.writableDatabase
-        val cursor = db.rawQuery(
-            "SELECT * FROM $TABLE_USER WHERE $USER_ID = 0",
-            null
-        )
-        val exists = cursor.count > 0
-        cursor.close()
-
-        if (!exists) {
-            val values = ContentValues().apply {
-                put(USER_ID, 0)
-                put(USER_TOTAL_LISTENING_TIME, 0)
-            }
-            db.insert(TABLE_USER, null, values)
-        }
-    }
-
-
 
 
     /**
@@ -161,21 +127,22 @@ class TuneFlowDatabase(
     /**
      * Add a song to a playlist.
      * If the playlist doesn't exist, it is created.
-     * The song is added to the songs table if doesn't already exist.
+     * The song is added to the songs table if it doesn't already exist.
      * @param song the song to add
      * @param playlistName the name of the playlist
+     * @return true if the song was added, false if it was already in the playlist
      */
-    fun addSongToPlaylist(song: Song, playlistName: String) {
+    fun addSongToPlaylist(song: Song, playlistName: String): Boolean {
+        addListenedSong(song)
         val db = writableDatabase
         db.beginTransaction()
         try {
             // get id or create playlist
-            var playlistId: Long
             val cursorPlaylist = db.rawQuery(
                 "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
                 arrayOf(playlistName)
             )
-            playlistId = if (cursorPlaylist.moveToFirst()) {
+            val playlistId = if (cursorPlaylist.moveToFirst()) {
                 cursorPlaylist.getLong(cursorPlaylist.getColumnIndexOrThrow(PLAYLIST_ID))
             } else {
                 val values = ContentValues().apply {
@@ -185,17 +152,17 @@ class TuneFlowDatabase(
             }
             cursorPlaylist.close()
 
-            // insert song in table (songs) if doesn't exist
+            // insert song in table songs if doesn't exist
             val cursorSong = db.rawQuery(
-                "SELECT 1 FROM $TABLE_SONGS WHERE $SONG_ID = ? LIMIT 1",
+                "SELECT $SONG_ID FROM $TABLE_SONGS WHERE $SONG_LISTENING_ID = ? LIMIT 1",
                 arrayOf(song.trackId.toString())
             )
-            val songExists = cursorSong.moveToFirst()
-            cursorSong.close()
-
-            if (!songExists) {
+            val internalSongId: Long
+            if (cursorSong.moveToFirst()) {
+                internalSongId = cursorSong.getLong(cursorSong.getColumnIndexOrThrow(SONG_ID))
+            } else {
                 val valuesSong = ContentValues().apply {
-                    put(SONG_ID, song.trackId)
+                    put(SONG_LISTENING_ID, song.trackId)
                     put(SONG_TITLE, song.trackName)
                     put(SONG_AUTHOR, song.artistName)
                     put(SONG_ALBUM, song.collectionName)
@@ -206,30 +173,36 @@ class TuneFlowDatabase(
                     put(SONG_STYLE, song.primaryGenreName)
                     put(SONG_APPLE_MUSIC_URL, song.trackViewUrl)
                 }
-                db.insert(TABLE_SONGS, null, valuesSong)
+                internalSongId = db.insert(TABLE_SONGS, null, valuesSong)
             }
+            cursorSong.close()
 
-            // manage in table playlist_songs
+            // check if already in playlist
             val cursorPS = db.rawQuery(
                 "SELECT 1 FROM $TABLE_PLAYLIST_SONGS WHERE $PS_PLAYLIST_ID = ? AND $PS_SONG_ID = ? LIMIT 1",
-                arrayOf(playlistId.toString(), song.trackId.toString())
+                arrayOf(playlistId.toString(), internalSongId.toString())
             )
             val alreadyInPlaylist = cursorPS.moveToFirst()
             cursorPS.close()
 
-            if (!alreadyInPlaylist) {
-                val valuesPS = ContentValues().apply {
-                    put(PS_PLAYLIST_ID, playlistId)
-                    put(PS_SONG_ID, song.trackId)
-                }
-                db.insert(TABLE_PLAYLIST_SONGS, null, valuesPS)
+            if (alreadyInPlaylist) {
+                return false // already in a playlist
             }
 
+            // insert into playlist_songs
+            val valuesPS = ContentValues().apply {
+                put(PS_PLAYLIST_ID, playlistId)
+                put(PS_SONG_ID, internalSongId)
+            }
+            db.insert(TABLE_PLAYLIST_SONGS, null, valuesPS)
+
             db.setTransactionSuccessful()
+            return true // song added
         } finally {
             db.endTransaction()
         }
     }
+
 
     /**
      * Remove a song from a playlist.
@@ -241,7 +214,7 @@ class TuneFlowDatabase(
         val db = writableDatabase
         db.beginTransaction()
         try {
-            // get playlist id
+            // --- get playlist id ---
             val cursorPlaylist = db.rawQuery(
                 "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
                 arrayOf(playlistName)
@@ -255,14 +228,27 @@ class TuneFlowDatabase(
                 cursorPlaylist.getLong(cursorPlaylist.getColumnIndexOrThrow(PLAYLIST_ID))
             cursorPlaylist.close()
 
-            // remove songs in playlist_songs
+            // --- get internal SONG_ID ---
+            val cursorSongId = db.rawQuery(
+                "SELECT $SONG_ID FROM $TABLE_SONGS WHERE $SONG_LISTENING_ID = ? LIMIT 1",
+                arrayOf(song.trackId.toString())
+            )
+            if (!cursorSongId.moveToFirst()) {
+                cursorSongId.close()
+                db.endTransaction()
+                return // song doesn't exist
+            }
+            val internalSongId = cursorSongId.getLong(cursorSongId.getColumnIndexOrThrow(SONG_ID))
+            cursorSongId.close()
+
+            // --- remove song from playlist ---
             db.delete(
                 TABLE_PLAYLIST_SONGS,
                 "$PS_PLAYLIST_ID = ? AND $PS_SONG_ID = ?",
-                arrayOf(playlistId.toString(), song.trackId.toString())
+                arrayOf(playlistId.toString(), internalSongId.toString())
             )
 
-            // remove playlist if empty
+            // --- remove playlist if empty ---
             val cursorPlaylistEmpty = db.rawQuery(
                 "SELECT 1 FROM $TABLE_PLAYLIST_SONGS WHERE $PS_PLAYLIST_ID = ? LIMIT 1",
                 arrayOf(playlistId.toString())
@@ -438,7 +424,8 @@ class TuneFlowDatabase(
     fun getTotalListeningCount(): Int {
         val db = readableDatabase
         val cursor = db.rawQuery("SELECT COUNT(*) AS total FROM $TABLE_SONGS", null)
-        val count = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow("total")) else 0
+        val count =
+            if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow("total")) else 0
         cursor.close()
         return count
     }
@@ -453,7 +440,8 @@ class TuneFlowDatabase(
             "SELECT COUNT(DISTINCT $SONG_AUTHOR) AS artistCount FROM $TABLE_SONGS",
             null
         )
-        val count = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow("artistCount")) else 0
+        val count =
+            if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow("artistCount")) else 0
         cursor.close()
         return count
     }
@@ -463,8 +451,10 @@ class TuneFlowDatabase(
      * @return top artist or null if no data
      */
     fun getTopOneArtist(): String {
-        return getTopAuthors(1)[0]
+        val topAuthors = getTopAuthors(1)
+        return if (topAuthors.isNotEmpty()) topAuthors[0] else "Aucun"
     }
+
 
     /**
      * Returns the 10 most recently liked songs (highest ID first)
@@ -517,11 +507,14 @@ class TuneFlowDatabase(
                 trackName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_TITLE)) ?: "",
                 artistViewUrl = "", // not in DB
                 collectionViewUrl = "", // not in DB
-                trackViewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_APPLE_MUSIC_URL)) ?: "",
+                trackViewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_APPLE_MUSIC_URL))
+                    ?: "",
                 previewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_PREVIEW_URL)) ?: "",
                 artworkUrl60 = "", // not in DB
-                artworkUrl100 = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM_COVER_URL)) ?: "",
-                releaseDate = cursor.getString(cursor.getColumnIndexOrThrow(SONG_RELEASE_YEAR)) ?: "",
+                artworkUrl100 = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM_COVER_URL))
+                    ?: "",
+                releaseDate = cursor.getString(cursor.getColumnIndexOrThrow(SONG_RELEASE_YEAR))
+                    ?: "",
                 trackTimeMillis = 0L,// not in DB
                 country = "", // not in DB
                 primaryGenreName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_STYLE)) ?: ""
@@ -532,6 +525,168 @@ class TuneFlowDatabase(
         return song
     }
 
+    /**
+     * For each playlist:
+     *      get the name, the number of songs (including 0) and the last song cover url
+     */
+    fun getPlaylistsInfo(): List<PlaylistInfo> {
+        val db = readableDatabase
+        val playlists = mutableListOf<PlaylistInfo>()
+
+        val query = """
+        SELECT p.$PLAYLIST_NAME AS playlistName,
+               COUNT(ps.$PS_SONG_ID) AS songCount,
+               (
+                   SELECT s2.$SONG_ALBUM_COVER_URL
+                   FROM $TABLE_PLAYLIST_SONGS ps2
+                   JOIN $TABLE_SONGS s2 ON s2.$SONG_ID = ps2.$PS_SONG_ID
+                   WHERE ps2.$PS_PLAYLIST_ID = p.$PLAYLIST_ID
+                   ORDER BY s2.$SONG_ID DESC
+                   LIMIT 1
+               ) AS lastSongCover
+        FROM $TABLE_PLAYLISTS p
+        LEFT JOIN $TABLE_PLAYLIST_SONGS ps ON ps.$PS_PLAYLIST_ID = p.$PLAYLIST_ID
+        GROUP BY p.$PLAYLIST_ID
+        ORDER BY p.$PLAYLIST_NAME ASC
+    """.trimIndent()
+
+        val cursor = db.rawQuery(query, null)
+        while (cursor.moveToNext()) {
+            val name = cursor.getString(cursor.getColumnIndexOrThrow("playlistName"))
+            val count = cursor.getInt(cursor.getColumnIndexOrThrow("songCount"))
+            val coverUrl = cursor.getString(cursor.getColumnIndexOrThrow("lastSongCover")) ?: ""
+            playlists.add(PlaylistInfo(name, count, coverUrl))
+        }
+        cursor.close()
+        return playlists
+    }
+
+
+    /**
+     * Create new playlist in db
+     * If a playlist with the same name already exists, it will not be recreated
+     *
+     * @param playlistName name of the playlist
+     * @return true if the playlist has been created, false if it already existed or in case of error
+     */
+    fun createPlaylist(playlistName: String): Boolean {
+        val db = writableDatabase
+
+        // Check if the playlist already exists
+        val cursor = db.rawQuery(
+            "SELECT 1 FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
+            arrayOf(playlistName)
+        )
+
+        val exists = cursor.moveToFirst()
+        cursor.close()
+
+        if (exists) {
+            return false
+        }
+
+        // create new playlist
+        val values = ContentValues().apply {
+            put(PLAYLIST_NAME, playlistName)
+        }
+
+        val result = db.insert(TABLE_PLAYLISTS, null, values)
+        val success = result != -1L
+
+        return success
+    }
+
+
+
+    /**
+     * Get all songs from a given playlist.
+     *
+     * @param playlistName The name of the playlist.
+     * @return A list of Song objects contained in the playlist.
+     */
+    fun getSongsFromPlaylist(playlistName: String): List<Song> {
+        val db = readableDatabase
+        val songs = mutableListOf<Song>()
+
+        val query = """
+        SELECT s.$SONG_LISTENING_ID, s.$SONG_TITLE, s.$SONG_AUTHOR, s.$SONG_ALBUM, 
+               s.$SONG_PREVIEW_URL, s.$SONG_ALBUM_COVER_URL, s.$SONG_RELEASE_YEAR, 
+               s.$SONG_STYLE, s.$SONG_APPLE_MUSIC_URL
+        FROM $TABLE_SONGS s
+        JOIN $TABLE_PLAYLIST_SONGS ps ON s.$SONG_ID = ps.$PS_SONG_ID
+        JOIN $TABLE_PLAYLISTS p ON p.$PLAYLIST_ID = ps.$PS_PLAYLIST_ID
+        WHERE p.$PLAYLIST_NAME = ?
+        ORDER BY s.$SONG_ID DESC
+    """.trimIndent()
+
+        val cursor = db.rawQuery(query, arrayOf(playlistName))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val song = Song(
+                    artistId = 0L,
+                    collectionId = 0L,
+                    trackId = cursor.getLong(cursor.getColumnIndexOrThrow(SONG_LISTENING_ID)),
+                    artistName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_AUTHOR)) ?: "",
+                    collectionName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM)) ?: "",
+                    trackName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_TITLE)) ?: "",
+                    artistViewUrl = "",
+                    collectionViewUrl = "",
+                    trackViewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_APPLE_MUSIC_URL))
+                        ?: "",
+                    previewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_PREVIEW_URL)) ?: "",
+                    artworkUrl60 = "",
+                    artworkUrl100 = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM_COVER_URL))
+                        ?: "",
+                    releaseDate = cursor.getString(cursor.getColumnIndexOrThrow(SONG_RELEASE_YEAR)) ?: "",
+                    trackTimeMillis = 0L,
+                    country = "",
+                    primaryGenreName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_STYLE)) ?: ""
+                )
+                songs.add(song)
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return songs
+    }
+
+    /**
+     * Deletes a playlist and all its links to songs.
+     * @param playlistName name of playlist to delete
+     * @return true if it worked
+     */
+    fun deletePlaylist(playlistName: String): Boolean {
+        val db = writableDatabase
+        db.beginTransaction()
+        return try {
+            // get id of the playlist
+            val cursor = db.rawQuery(
+                "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
+                arrayOf(playlistName)
+            )
+            val playlistId = if (cursor.moveToFirst()) {
+                cursor.getLong(cursor.getColumnIndexOrThrow(PLAYLIST_ID))
+            } else {
+                cursor.close()
+                return false // playlist doesn't exist
+            }
+            cursor.close()
+
+            db.delete(TABLE_PLAYLIST_SONGS, "$PS_PLAYLIST_ID = ?", arrayOf(playlistId.toString()))
+
+            db.delete(TABLE_PLAYLISTS, "$PLAYLIST_ID = ?", arrayOf(playlistId.toString()))
+
+            db.setTransactionSuccessful()
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        } finally {
+            db.endTransaction()
+        }
+    }
+
 
 
     companion object {
@@ -540,7 +695,6 @@ class TuneFlowDatabase(
         const val DB_VERSION = 1
 
         // --- Table Names ---
-        const val TABLE_USER = "user"
         const val TABLE_SONGS = "songs"
         const val TABLE_PLAYLISTS = "playlists"
         const val TABLE_PLAYLIST_SONGS = "playlist_songs"

@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
@@ -22,13 +23,12 @@ import com.example.tuneflow.R
 import com.example.tuneflow.data.Song
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
-import com.example.tuneflow.ui.utils.SwipeListener
 import com.example.tuneflow.ui.utils.generalTools
 import java.text.DecimalFormat
 import kotlin.collections.listOf
 import kotlin.sequences.forEach
 
-class DashboardFragment : Fragment(), SwipeListener {
+class DashboardFragment : Fragment() {
     private lateinit var titleTextView: TextView
     private lateinit var subtitleTextView: TextView
     private lateinit var layoutStat1: LinearLayout
@@ -61,23 +61,35 @@ class DashboardFragment : Fragment(), SwipeListener {
         statsLayouts = listOf(layoutStat1, layoutStat2, layoutStat3, layoutStat4, layoutStat5)
 
         // display stats
-        view.findViewById<TextView>(R.id.textNbSongs).text = formatNumber(db.getTotalListeningCount())
-        view.findViewById<TextView>(R.id.textNbLiked).text = formatNumber(db.getLikedCount())
-        view.findViewById<TextView>(R.id.textNbAuthor).text = formatNumber(db.getDistinctArtistsCount())
-        view.findViewById<TextView>(R.id.textAuthorName).text = db.getTopOneArtist()
+        // --- Total listened ---
+        val totalListened = db.getTotalListeningCount()
+        val textNbSongs = view.findViewById<TextView>(R.id.textNbSongs)
+        val textTitleListened = view.findViewById<TextView>(R.id.textTitleListened)
+
+        textNbSongs.text = formatNumber(totalListened)
+        textTitleListened.text = if (totalListened < 2) "Titre écouté" else "Titres écoutés"
+
+        // --- Total liked ---
+        val totalLiked = db.getLikedCount()
+        val textNbLiked = view.findViewById<TextView>(R.id.textNbLiked)
+        textNbLiked.text = formatNumber(totalLiked)
+        val textSongLiked = view.findViewById<TextView>(R.id.textSongLiked)
+        textSongLiked.text = if (totalLiked < 2) "Morceau liké" else "Morceaux likés"
+
+        // --- Artist discovered ---
+        val totalAuthors = db.getDistinctArtistsCount()
+        val textNbAuthor = view.findViewById<TextView>(R.id.textNbAuthor)
+        textNbAuthor.text = formatNumber(totalAuthors)
+        val textAuthorDiscover = view.findViewById<TextView>(R.id.textAuthorDiscover)
+        textAuthorDiscover.text = if (totalAuthors < 2) "Artiste découvert" else "Artistes découverts"
+
+        // --- Top artiste ---
+        val textAuthorName = view.findViewById<TextView>(R.id.textAuthorName)
+        textAuthorName.text = db.getTopOneArtist()
+
 
         // display recent like
         displayRecentLike()
-    }
-
-    override fun onSwipeRight() {
-        (activity as? MainActivity)?.showFragment(
-            (activity as MainActivity).homeFragment
-        )
-    }
-
-    override fun onSwipeLeft() {
-        // do nothing
     }
 
     override fun onResume() {
@@ -186,7 +198,35 @@ class DashboardFragment : Fragment(), SwipeListener {
             val coverView = itemView.findViewById<ImageView>(R.id.imageCoverSearch)
             val playButton = itemView.findViewById<ImageButton>(R.id.buttonPlay)
             val likeButton = itemView.findViewById<ImageButton>(R.id.buttonLikeSearch)
+            val moreButton = itemView.findViewById<ImageButton>(R.id.buttonMore)
 
+            // create popupMenu on moreButton
+            val popup = PopupMenu(moreButton.context, moreButton)
+            popup.inflate(R.menu.menu_options_song)
+            popup.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.addToPlaylist -> {
+                        val bottomSheet = PlaylistBottomSheet(
+                            song
+                        )
+                        bottomSheet.show(parentFragmentManager, "playlistBottomSheet")
+                        true
+                    }
+                    R.id.listenOnAppleMusic -> {
+                        generalTools.redirectOnAppleMusic(requireContext(), song.trackViewUrl)
+                        true
+                    }
+                    R.id.share -> {
+                        generalTools.shareMessage(requireContext(), "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            moreButton.setOnClickListener {
+                popup.show()
+            }
 
 
             generalTools.updateLikeIcon(song, likeButton, db, true)

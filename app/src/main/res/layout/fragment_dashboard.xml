@@ -77,6 +77,7 @@
                     tools:text="1,247" />
 
                 <TextView
+                    android:id="@+id/textTitleListened"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/song_listened" />
@@ -111,6 +112,7 @@
                     tools:text="342" />
 
                 <TextView
+                    android:id="@+id/textSongLiked"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/liked_tracks" />
@@ -145,6 +147,7 @@
                     tools:text="156" />
 
                 <TextView
+                    android:id="@+id/textAuthorDiscover"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/discovered_artists" />

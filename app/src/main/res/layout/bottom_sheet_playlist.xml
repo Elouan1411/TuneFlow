@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomSheetLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_popup_rounded"
+    android:orientation="vertical"
+    android:padding="@dimen/space_between_bloc">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_between_bloc"
+        android:layout_marginBottom="@dimen/little_space_between_bloc">
+
+        <TextView
+            android:id="@+id/titleBottomSheet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/add_to_playlist"
+            android:textColor="@color/home_title"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/closeButtonBottomSheet"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:background="@android:color/transparent"
+            android:layout_marginEnd="@dimen/space_between_bloc"
+            android:contentDescription="@string/close"
+            android:padding="4dp"
+            android:src="@drawable/ic_close"/>
+    </RelativeLayout>
+
+    <!-- Song info -->
+    <TextView
+        android:id="@+id/songInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/padding_screen"
+        android:gravity="center"
+        android:textColor="@color/subtitle"
+        android:textSize="14sp"
+        tools:text="Titre • Artiste" />
+
+
+
+    <LinearLayout
+        android:id="@+id/createPlaylist"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_rectangle_color"
+        android:foreground="@drawable/ripple_button"
+        android:focusable="true"
+        android:clickable="true"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:id="@+id/buttonWantCreatePlaylistInBottomSheat"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="@dimen/space_between_bloc"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_circle_grey">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"
+                android:contentDescription="@string/add"
+                android:src="@drawable/ic_add" />
+
+        </RelativeLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:clickable="false"
+            android:focusable="false"
+            android:gravity="center"
+            android:text="@string/create_new_playlist"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+
+    <!-- RecyclerView for playlists -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPlaylists"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+</LinearLayout>

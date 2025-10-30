@@ -17,8 +17,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
-import androidx.core.view.children
 import androidx.core.widget.ImageViewCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -28,7 +28,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.tuneflow.MainActivity
 import com.example.tuneflow.R
-import com.example.tuneflow.ui.utils.SwipeListener
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.tuneflow.data.Song
@@ -42,7 +41,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 
-class DiscoverFragment : Fragment(), SwipeListener {
+class DiscoverFragment : Fragment() {
 
     private val imageIds = listOf(
         R.id.image_happy,
@@ -130,9 +129,9 @@ class DiscoverFragment : Fragment(), SwipeListener {
 
 
                     stopMusicLoader()
-                    displaySearchResults(results, query.isEmpty())
+                    displaySearchResults(results, query.isEmpty(), view)
                 } else {
-                    displaySearchResults(emptyList(), query.isEmpty())
+                    displaySearchResults(emptyList(), query.isEmpty(), view)
                     closeButton.visibility = View.GONE
                 }
             }
@@ -310,17 +309,6 @@ class DiscoverFragment : Fragment(), SwipeListener {
         }
     }
 
-
-    override fun onSwipeRight() {
-        // Rien
-    }
-
-    override fun onSwipeLeft() {
-        (activity as? MainActivity)?.showFragment(
-            (activity as MainActivity).homeFragment
-        )
-    }
-
     /**
      * Displays the search results in the LinearLayout.
      *
@@ -335,7 +323,7 @@ class DiscoverFragment : Fragment(), SwipeListener {
      *
      * Also handles showing the "no results" text and animating the scroll view expansion/collapse.
      */
-    private fun displaySearchResults(results: List<Song>, isEmpty: Boolean) {
+    private fun displaySearchResults(results: List<Song>, isEmpty: Boolean, view: View) {
         val container = requireView().findViewById<LinearLayout>(R.id.searchResultsContainer)
         container?.removeAllViews() // reset old results
 
@@ -348,13 +336,38 @@ class DiscoverFragment : Fragment(), SwipeListener {
             val coverView = itemView.findViewById<ImageView>(R.id.imageCoverSearch)
             val playButton = itemView.findViewById<ImageButton>(R.id.buttonPlay)
             val likeButton = itemView.findViewById<ImageButton>(R.id.buttonLikeSearch)
+            val moreButton = itemView.findViewById<ImageButton>(R.id.buttonMore)
 
+            // create popupMenu on moreButton
+            val popup = PopupMenu(moreButton.context, moreButton)
+            popup.inflate(R.menu.menu_options_song)
+            popup.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.addToPlaylist -> {
+                        val bottomSheet = PlaylistBottomSheet(
+                            song
+                        )
+                        bottomSheet.show(parentFragmentManager, "playlistBottomSheet")
+                        true
+                    }
+                    R.id.listenOnAppleMusic -> {
+                        generalTools.redirectOnAppleMusic(requireContext(), song.trackViewUrl)
+                        true
+                    }
+                    R.id.share -> {
+                        generalTools.shareMessage(requireContext(), "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            moreButton.setOnClickListener {
+                popup.show()
+            }
 
 
             generalTools.updateLikeIcon(song, likeButton, db, true)
-
-
-
 
 
             titleView.text = song.trackName
