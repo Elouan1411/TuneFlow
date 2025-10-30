@@ -28,7 +28,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.tuneflow.MainActivity
 import com.example.tuneflow.R
-import com.example.tuneflow.ui.utils.SwipeListener
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.tuneflow.data.Song
@@ -42,7 +41,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 
-class DiscoverFragment : Fragment(), SwipeListener {
+class DiscoverFragment : Fragment() {
 
     private val imageIds = listOf(
         R.id.image_happy,
@@ -310,17 +309,6 @@ class DiscoverFragment : Fragment(), SwipeListener {
         }
     }
 
-
-    override fun onSwipeRight() {
-        // Rien
-    }
-
-    override fun onSwipeLeft() {
-        (activity as? MainActivity)?.showFragment(
-            (activity as MainActivity).homeFragment
-        )
-    }
-
     /**
      * Displays the search results in the LinearLayout.
      *
@@ -367,7 +355,7 @@ class DiscoverFragment : Fragment(), SwipeListener {
                         true
                     }
                     R.id.share -> {
-                        generalTools.shareMessage(requireContext(), "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la conseille ! Écoute-la ici : ${song.trackViewUrl}")
+                        generalTools.shareMessage(requireContext(), "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
                         true
                     }
                     else -> false

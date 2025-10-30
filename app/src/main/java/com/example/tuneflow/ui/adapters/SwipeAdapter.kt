@@ -2,11 +2,8 @@ package com.example.tuneflow.ui.adapters
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.content.res.ColorStateList
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -16,7 +13,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.ImageViewCompat
@@ -67,9 +63,8 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         val buttonAddPlaylist: ImageView = view.findViewById<ImageView>(R.id.button_add_playlist)
 
         val buttonAppleMusic: FrameLayout = view.findViewById<FrameLayout>(R.id.frameLayoutLinkApple)
-        val textAppleMusic: TextView = view.findViewById<TextView>(R.id.appleMusicText)
+        val textShare: TextView = view.findViewById<TextView>(R.id.shareText)
 
-        val texteAuthor: TextView = view.findViewById<TextView>(R.id.textAuthor)
 
         val layoutInfoCurrentMood: RelativeLayout = view.findViewById<RelativeLayout>(R.id.layoutInfoCurrentMood)
 
@@ -178,8 +173,8 @@ class SwipeAdapter(val items: MutableList<Song>, private val db: TuneFlowDatabas
         holder.buttonAppleMusic.setOnClickListener {
             generalTools.redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
         }
-        holder.textAppleMusic.setOnClickListener {
-            generalTools.redirectOnAppleMusic(holder.itemView.context,song.trackViewUrl)
+        holder.textShare.setOnClickListener {
+            generalTools.shareMessage(holder.itemView.context, "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
         }
 
         // detect click on cover for stop music and do animation

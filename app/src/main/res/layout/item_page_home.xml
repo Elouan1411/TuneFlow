@@ -252,20 +252,21 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/appleMusicText"
+            android:id="@+id/shareText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/div_button"
+            android:textStyle="italic"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/little_space_between_bloc"
-            android:text="@string/listen_on_apple_music"
+            android:text="@string/Share_underline"
             android:textColor="@color/apple_music_text" />
 
         <ImageView
             android:id="@+id/arrow_bottom"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:layout_below="@id/appleMusicText"
+            android:layout_below="@id/shareText"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/triple_space_between_bloc"
             android:layout_marginBottom="@dimen/space_between_bloc"

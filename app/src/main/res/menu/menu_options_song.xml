@@ -11,6 +11,6 @@
 
     <item
         android:id="@+id/share"
-        android:title="@string/share"
+        android:title="@string/Share"
         android:icon="@drawable/ic_add_playlist" />
 </menu>

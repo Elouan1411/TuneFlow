@@ -23,13 +23,12 @@ import com.example.tuneflow.R
 import com.example.tuneflow.data.Song
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
-import com.example.tuneflow.ui.utils.SwipeListener
 import com.example.tuneflow.ui.utils.generalTools
 import java.text.DecimalFormat
 import kotlin.collections.listOf
 import kotlin.sequences.forEach
 
-class DashboardFragment : Fragment(), SwipeListener {
+class DashboardFragment : Fragment() {
     private lateinit var titleTextView: TextView
     private lateinit var subtitleTextView: TextView
     private lateinit var layoutStat1: LinearLayout
@@ -91,16 +90,6 @@ class DashboardFragment : Fragment(), SwipeListener {
 
         // display recent like
         displayRecentLike()
-    }
-
-    override fun onSwipeRight() {
-        (activity as? MainActivity)?.showFragment(
-            (activity as MainActivity).homeFragment
-        )
-    }
-
-    override fun onSwipeLeft() {
-        // do nothing
     }
 
     override fun onResume() {
@@ -228,7 +217,7 @@ class DashboardFragment : Fragment(), SwipeListener {
                         true
                     }
                     R.id.share -> {
-                        generalTools.shareMessage(requireContext(), "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la conseille ! Écoute-la ici : ${song.trackViewUrl}")
+                        generalTools.shareMessage(requireContext(), "🎵 J'ai découvert \"${song.trackName}\" de ${song.artistName} et je te la recommande ! Écoute-la ici : ${song.trackViewUrl}")
                         true
                     }
                     else -> false

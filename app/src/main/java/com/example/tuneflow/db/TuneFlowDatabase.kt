@@ -597,53 +597,96 @@ class TuneFlowDatabase(
     }
 
 
+
     /**
-     * Check if a song is present in a specific playlist.
-     * @param song the song to check
-     * @param playlistName name of the playlist
-     * @return true if it's in a playlist
+     * Get all songs from a given playlist.
+     *
+     * @param playlistName The name of the playlist.
+     * @return A list of Song objects contained in the playlist.
      */
-    fun isSongInPlaylist(song: Song, playlistName: String): Boolean {
+    fun getSongsFromPlaylist(playlistName: String): List<Song> {
         val db = readableDatabase
+        val songs = mutableListOf<Song>()
 
-        // get ID of song
-        val cursorSong = db.rawQuery(
-            "SELECT $SONG_ID FROM $TABLE_SONGS WHERE $SONG_LISTENING_ID = ? LIMIT 1",
-            arrayOf(song.trackId.toString())
-        )
+        val query = """
+        SELECT s.$SONG_LISTENING_ID, s.$SONG_TITLE, s.$SONG_AUTHOR, s.$SONG_ALBUM, 
+               s.$SONG_PREVIEW_URL, s.$SONG_ALBUM_COVER_URL, s.$SONG_RELEASE_YEAR, 
+               s.$SONG_STYLE, s.$SONG_APPLE_MUSIC_URL
+        FROM $TABLE_SONGS s
+        JOIN $TABLE_PLAYLIST_SONGS ps ON s.$SONG_ID = ps.$PS_SONG_ID
+        JOIN $TABLE_PLAYLISTS p ON p.$PLAYLIST_ID = ps.$PS_PLAYLIST_ID
+        WHERE p.$PLAYLIST_NAME = ?
+        ORDER BY s.$SONG_ID DESC
+    """.trimIndent()
 
-        val internalSongId: Long = if (cursorSong.moveToFirst()) {
-            cursorSong.getLong(cursorSong.getColumnIndexOrThrow(SONG_ID))
-        } else {
-            cursorSong.close()
-            return false // song not in DB
+        val cursor = db.rawQuery(query, arrayOf(playlistName))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val song = Song(
+                    artistId = 0L,
+                    collectionId = 0L,
+                    trackId = cursor.getLong(cursor.getColumnIndexOrThrow(SONG_LISTENING_ID)),
+                    artistName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_AUTHOR)) ?: "",
+                    collectionName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM)) ?: "",
+                    trackName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_TITLE)) ?: "",
+                    artistViewUrl = "",
+                    collectionViewUrl = "",
+                    trackViewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_APPLE_MUSIC_URL))
+                        ?: "",
+                    previewUrl = cursor.getString(cursor.getColumnIndexOrThrow(SONG_PREVIEW_URL)) ?: "",
+                    artworkUrl60 = "",
+                    artworkUrl100 = cursor.getString(cursor.getColumnIndexOrThrow(SONG_ALBUM_COVER_URL))
+                        ?: "",
+                    releaseDate = cursor.getString(cursor.getColumnIndexOrThrow(SONG_RELEASE_YEAR)) ?: "",
+                    trackTimeMillis = 0L,
+                    country = "",
+                    primaryGenreName = cursor.getString(cursor.getColumnIndexOrThrow(SONG_STYLE)) ?: ""
+                )
+                songs.add(song)
+            } while (cursor.moveToNext())
         }
-        cursorSong.close()
 
-        // get ID of playlist
-        val cursorPlaylist = db.rawQuery(
-            "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
-            arrayOf(playlistName)
-        )
-
-        val playlistId: Long = if (cursorPlaylist.moveToFirst()) {
-            cursorPlaylist.getLong(cursorPlaylist.getColumnIndexOrThrow(PLAYLIST_ID))
-        } else {
-            cursorPlaylist.close()
-            return false // plyalist not in DB
-        }
-        cursorPlaylist.close()
-
-        // final check
-        val cursorPS = db.rawQuery(
-            "SELECT 1 FROM $TABLE_PLAYLIST_SONGS WHERE $PS_PLAYLIST_ID = ? AND $PS_SONG_ID = ? LIMIT 1",
-            arrayOf(playlistId.toString(), internalSongId.toString())
-        )
-        val isInPlaylist = cursorPS.moveToFirst()
-        cursorPS.close()
-
-        return isInPlaylist
+        cursor.close()
+        return songs
     }
+
+    /**
+     * Deletes a playlist and all its links to songs.
+     * @param playlistName name of playlist to delete
+     * @return true if it worked
+     */
+    fun deletePlaylist(playlistName: String): Boolean {
+        val db = writableDatabase
+        db.beginTransaction()
+        return try {
+            // get id of the playlist
+            val cursor = db.rawQuery(
+                "SELECT $PLAYLIST_ID FROM $TABLE_PLAYLISTS WHERE $PLAYLIST_NAME = ? LIMIT 1",
+                arrayOf(playlistName)
+            )
+            val playlistId = if (cursor.moveToFirst()) {
+                cursor.getLong(cursor.getColumnIndexOrThrow(PLAYLIST_ID))
+            } else {
+                cursor.close()
+                return false // playlist doesn't exist
+            }
+            cursor.close()
+
+            db.delete(TABLE_PLAYLIST_SONGS, "$PS_PLAYLIST_ID = ?", arrayOf(playlistId.toString()))
+
+            db.delete(TABLE_PLAYLISTS, "$PLAYLIST_ID = ?", arrayOf(playlistId.toString()))
+
+            db.setTransactionSuccessful()
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        } finally {
+            db.endTransaction()
+        }
+    }
+
 
 
     companion object {

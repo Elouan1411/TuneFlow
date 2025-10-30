@@ -1,8 +1,6 @@
 package com.example.tuneflow
 
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -15,7 +13,6 @@ import com.example.tuneflow.ui.DashboardFragment
 import com.example.tuneflow.ui.DiscoverFragment
 import com.example.tuneflow.ui.HomeFragment
 import com.example.tuneflow.ui.PlaylistsFragment
-import com.example.tuneflow.ui.utils.SwipeListener
 import com.example.tuneflow.ui.utils.loadFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 class MainActivity : AppCompatActivity() {
@@ -76,31 +73,6 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // GestureDetector for detect horizontal swipe
-        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            private val SWIPE_THRESHOLD = 100
-            private val SWIPE_VELOCITY_THRESHOLD = 100
-
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 == null || e2 == null) return false
-                val diffX = e2.x - e1.x
-                val diffY = e2.y - e1.y
-                if (Math.abs(diffX) > Math.abs(diffY) &&
-                    Math.abs(diffX) > SWIPE_THRESHOLD &&
-                    Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-
-                    if (diffX > 0) onSwipeRight() else onSwipeLeft()
-                    return true
-                }
-                return false
-            }
-        })
-
 
 
         // Apply the touch listener to the fragment_container (for horizontal swipe)
@@ -114,15 +86,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onSwipeRight() {
-        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (fragment is SwipeListener) fragment.onSwipeRight()
-    }
-
-    private fun onSwipeLeft() {
-        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (fragment is SwipeListener) fragment.onSwipeLeft()
-    }
 
     /**
      * Shows the specified fragment and hides the others,

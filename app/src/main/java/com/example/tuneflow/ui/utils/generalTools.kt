@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.net.Uri
-import android.util.Log
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
@@ -63,7 +62,9 @@ object generalTools {
         // Reset buttons of other songs
         container.children.forEach { child ->
             val btn = child.findViewById<ImageButton>(R.id.buttonPlay)
-            if (btn != playButton) btn?.setImageResource(R.drawable.ic_play)
+            if (btn != playButton) {
+                btn?.setImageResource(R.drawable.ic_play)
+            }
         }
 
         if (currentSongId == song.trackId) {
@@ -115,6 +116,25 @@ object generalTools {
             putExtra(Intent.EXTRA_TEXT, message)
         }
         context.startActivity(Intent.createChooser(intent, "Partager via"))
+    }
+
+
+    /**
+     * Share playlist with the titles of each song
+     *  @param name Name of the playlist
+     *  @param db TuneFlowDatabase
+     *  @param context Context
+     */
+    fun sharePlaylist(name: String, db: TuneFlowDatabase, context: Context){
+        val songs: List<Song> = db.getSongsFromPlaylist(name)
+        val songsList = songs.joinToString(separator = "\n") { "   🎵 ${it.trackName} - ${it.artistName}" }
+
+        val message = """
+🎶 J'ai créé ma playlist "${name}" grâce à TuneFlow !
+Découvre les titres que j'y ai ajoutés :
+$songsList
+""".trimIndent()
+        shareMessage(context, message)
     }
 
 }

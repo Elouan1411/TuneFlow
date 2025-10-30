@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomSheetLayoutInPlaylist"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_popup_rounded"
+    android:orientation="vertical"
+    android:padding="@dimen/space_between_bloc">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_between_bloc"
+        android:layout_marginBottom="@dimen/little_space_between_bloc">
+
+        <ImageButton
+            android:id="@+id/deleteButtonBottomSheetInPlaylist"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@android:color/transparent"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="@dimen/space_between_bloc"
+            android:foreground="@drawable/ripple_circle"
+            android:contentDescription="@string/delete"
+            android:padding="4dp"
+            android:src="@drawable/ic_delete"/>
+
+        <TextView
+            android:id="@+id/titleBottomSheetInPlaylist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            tools:text="@string/title_of_playlist"
+            android:textColor="@color/home_title"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/closeButtonBottomSheetInPlaylist"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:background="@android:color/transparent"
+            android:foreground="@drawable/ripple_circle"
+            android:layout_marginEnd="@dimen/space_between_bloc"
+            android:contentDescription="@string/close"
+            android:padding="4dp"
+            android:src="@drawable/ic_close"/>
+    </RelativeLayout>
+
+    <!-- Song info -->
+    <TextView
+        android:id="@+id/nbSongsInPlaylist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/little_space_between_bloc"
+        android:gravity="center"
+        android:textColor="@color/subtitle"
+        android:textSize="14sp"
+        tools:text="N morceaux" />
+
+
+    <TextView
+        android:id="@+id/sharePlaylistText"
+        android:layout_width="match_parent"
+        android:foreground="@drawable/ripple_cover"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/padding_screen"
+        android:gravity="center"
+        android:textColor="@color/subtitle"
+        android:textSize="14sp"
+        android:text="@string/Share_underline" />
+
+
+
+    <!-- RecyclerView for playlists -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvInPlaylists"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+</LinearLayout>

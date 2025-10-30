@@ -5,14 +5,15 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import androidx.fragment.app.Fragment
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.view.children
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -20,11 +21,16 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.tuneflow.MainActivity
 import com.example.tuneflow.R
 import com.example.tuneflow.data.PlaylistInfo
+import com.example.tuneflow.data.Song
 import com.example.tuneflow.db.TuneFlowDatabase
 import com.example.tuneflow.player.MusicPlayerManager
+import com.example.tuneflow.ui.utils.generalTools
 
 class PlaylistsFragment : Fragment() {
-
+    private lateinit var titleTextView: TextView
+    private lateinit var subtitleTextView: TextView
+    private lateinit var gridLayoutPlaylist: GridLayout
+    private lateinit var buttonWantCreatePlaylist: RelativeLayout
     private val db: TuneFlowDatabase
         get() = (activity as MainActivity).db
 
@@ -33,29 +39,36 @@ class PlaylistsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         return inflater.inflate(R.layout.fragment_playlists, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.e("myDebug", "onViewCreated")
+        titleTextView = view.findViewById(R.id.titleFragmentPlaylist)
+        subtitleTextView = view.findViewById(R.id.subtitleFragmentPlaylist)
+        gridLayoutPlaylist = view.findViewById(R.id.gridLayoutPlaylist)
+        buttonWantCreatePlaylist = view.findViewById(R.id.buttonWantCreatePlaylist)
 
         displayPlaylist(view)
 
-        // create playlist
+        // button create playlist
         view.findViewById<RelativeLayout>(R.id.buttonWantCreatePlaylist).setOnClickListener {
             PopupNewPlaylistFragment { playlistName ->
                 db.createPlaylist(playlistName)
                 displayPlaylist(view) // refresh
             }.show(parentFragmentManager, "popup_new_playlist")
-
         }
+
+
+
     }
 
     override fun onResume() {
         super.onResume()
         // stop music from home
         MusicPlayerManager.stopSong()
+        animatePlaylistPage()
     }
 
     override fun onStop() {
@@ -132,14 +145,49 @@ class PlaylistsFragment : Fragment() {
             displayImage(playlist, coverImage, view)
 
             // LayoutParams
+            val marginDp = 8
+            val scale = view.context.resources.displayMetrics.density
+            val marginPx = (marginDp * scale).toInt()
             val params = GridLayout.LayoutParams().apply {
                 width = 0
                 height = GridLayout.LayoutParams.WRAP_CONTENT
                 columnSpec = GridLayout.spec(index % columnCount, 1f)
                 rowSpec = GridLayout.spec(index / columnCount)
-                setMargins(8, 8, 8, 8)
+                setMargins(marginPx, marginPx, marginPx, marginPx)
             }
             itemView.layoutParams = params
+
+            // add listener for open the playlist
+            itemView.setOnClickListener {
+                InPlaylistBottomSheet(playlist.name, playlist.songCount) {
+                    // Callback after delete
+                    displayPlaylist(view)
+                    animatePlaylistPage()
+                }.show(parentFragmentManager, "inPlaylistBottomSheet")
+            }
+            // long press
+            itemView.setOnLongClickListener { view ->
+                val popup = PopupMenu(view.context, view)
+                popup.inflate(R.menu.menu_options_playlist)
+
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.option_delete -> {
+                            db.deletePlaylist(playlist.name)
+                            displayPlaylist(requireView())
+                            true
+                        }
+                        R.id.option_share -> {
+                            generalTools.sharePlaylist(playlist.name, db, requireContext())
+                            true
+                        }
+                        else -> false
+                    }
+                }
+
+                popup.show()
+                true // important pour indiquer que le long click est géré
+            }
 
             gridLayout.addView(itemView)
         }
@@ -157,6 +205,73 @@ class PlaylistsFragment : Fragment() {
             gridLayout.addView(emptyView)
         }
     }
+
+
+    /**
+     * Animates the title, subtitle, and playlist grid items with fade, translation, and scale effects.
+     */
+    private fun animatePlaylistPage() {
+        val animDuration = 400L
+        val animDelay = 150L
+        val translationY = 50f
+
+        // Title animation
+        titleTextView.alpha = 0f
+        titleTextView.translationY = -translationY
+        titleTextView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(animDuration)
+            .setStartDelay(0)
+            .start()
+
+        // Button animation
+        buttonWantCreatePlaylist.alpha = 0f
+        buttonWantCreatePlaylist.translationY = -translationY
+        buttonWantCreatePlaylist.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(animDuration)
+            .setStartDelay(0)
+            .start()
+
+        // Subtitle animation
+        subtitleTextView.alpha = 0f
+        subtitleTextView.translationY = -translationY
+        subtitleTextView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(animDuration)
+            .setStartDelay(animDelay)
+            .start()
+
+        // Animate grid items two by two
+        val childrenPerRow = 2
+        val rowDelay = (animDelay * 1.5).toLong()
+        var currentRow = 0
+
+        val gridChildren = gridLayoutPlaylist.children.toList()
+        gridChildren.forEachIndexed { index, child ->
+            child.alpha = 0f
+            child.translationY = -translationY
+            child.scaleX = 0.8f
+            child.scaleY = 0.8f
+
+            val delay = animDelay * 2 + (currentRow * rowDelay)
+
+            child.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(animDuration)
+                .setStartDelay(delay)
+                .start()
+
+            if ((index + 1) % childrenPerRow == 0) currentRow++
+        }
+    }
+
 
 
 
