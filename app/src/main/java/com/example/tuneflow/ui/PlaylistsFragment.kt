@@ -186,7 +186,7 @@ class PlaylistsFragment : Fragment() {
                 }
 
                 popup.show()
-                true // important pour indiquer que le long click est géré
+                true
             }
 
             gridLayout.addView(itemView)

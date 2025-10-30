@@ -394,7 +394,7 @@ class HomeFragment : Fragment() {
      */
     fun stopMood() {
         (activity as? MainActivity)?.moodFromDiscover = ""
-        (activity as? MainActivity)?.homeFragment?.let {
+        (activity as? MainActivity)?.discoverFragment?.let {
             (activity as MainActivity).showFragment(it)
         }
     }
